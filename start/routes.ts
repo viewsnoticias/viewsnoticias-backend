@@ -26,5 +26,5 @@ Route.get('/', async () => {
 
 Route.group(()=>{
   //noticias rotues
-  Route.resource('/noticias','NoticiasController').except(['edit','create'])
+  Route.resource('/noticias','NewsController').except(['edit','create'])
 }).prefix('api/v1')
