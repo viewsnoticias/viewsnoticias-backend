@@ -2,7 +2,7 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Noticia from "App/Models/Noticia";
 import NoticiaValidator from "App/Validators/NoticiaValidator";
 import Application from "@ioc:Adonis/Core/Application";
-
+import { readFileSync } from 'fs'
 export default class NoticiasController {
   public async index({ response }){
     const noticias = await Noticia.all()
@@ -16,9 +16,10 @@ export default class NoticiasController {
     if (!noticia){
       return response.notFound({msg:"new were not found"})
     }
+    const body = readFileSync(Application.makePath(noticia.body))
     return response.ok({
       msg:"news got",
-      data: noticia.toJSON()
+      data: {...noticia.toJSON(),body}
     })
   }
   public async store({request, response}: HttpContextContract){
