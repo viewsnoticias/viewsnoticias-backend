@@ -11,7 +11,27 @@ export default class NewsController {
       data: news
     })
   }
-  public async
+  public async update({ params, request, response }){
+    const body = request.body()
+    const news = await News.find(params.id)
+    if (!news){
+      return response.notFound({
+        msg:"news were not found"
+      })
+    }
+    for (const key of body ){
+      news[key] = body[key]
+    }
+    try {
+
+      await news.save()
+      return response.ok({
+        msg:"news updated"
+      })
+    } catch(err) {
+      return response.badRequest(err)
+    }
+  }
   public async destroy({ params, response }){
     const news = await News.find(params.id)
     await news?.delete()
