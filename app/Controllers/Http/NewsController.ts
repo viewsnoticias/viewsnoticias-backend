@@ -13,10 +13,7 @@ export default class NewsController {
   }
   public async update({ params, request }){
     const news = await News.findOrFail(params.id)
-
-    news.update(request.body())
-    await news.save()
-
+    await news.update(request.body())
     return { msg: 'news updated' }
   }
   public async destroy({ params }){
@@ -48,7 +45,7 @@ export default class NewsController {
 
       const createdNews = await News.create({
         ...data,
-        body: bodyPath + data.body.clientName
+        body: bodyPath + data.body.clientName,
       })
       await createdNews.related('sections').attach(data.sections)
 

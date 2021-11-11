@@ -29,4 +29,5 @@ Route.group(()=>{
   Route.resource('/news','NewsController').except(['edit','create'])
   Route.resource('/sections','SectionsController').except(['edit','create'])
   Route.resource('/users','UsersController').except(['edit','create'])
+  Route.resource('/roles','RolesController').except(['edit','create'])
 }).prefix('api/v1')
