@@ -9,10 +9,12 @@ export default class ExceptionHandler extends HttpExceptionHandler {
   }
   public async handle(error: any, ctx: HttpContextContract){
     //manejador de error; no encontrado
-    if (error.code === 'E_ROW_NOT_FOUND'){
-      return ctx.response.notFound({ message: 'not found' })
+    if (error.code === 'E_ROUTE_NOT_FOUND'){
+      return ctx.response.notFound({ msg: 'route not found' })
     }
-
+    if (error.code === 'E_ROW_NOT_FOUND' ){
+      return ctx.response.notFound({ msg: 'not found in db' })
+    }
     return super.handle(error,ctx)
   }
 }

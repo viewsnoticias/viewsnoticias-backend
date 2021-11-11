@@ -28,4 +28,5 @@ Route.group(()=>{
   //noticias rotues
   Route.resource('/news','NewsController').except(['edit','create'])
   Route.resource('/sections','SectionsController').except(['edit','create'])
+  Route.resource('/users','UsersController').except(['edit','create'])
 }).prefix('api/v1')
