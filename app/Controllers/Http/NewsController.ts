@@ -26,10 +26,16 @@ export default class NewsController {
   }
   public async show({ params }){
     const news = await News.findOrFail(params.id)
-    const body = readFileSync(Application.makePath(news.body)).toString()
+    await news.load('sections')
+    const sections = news.sections.map(section => section.name )
+    const body = readFileSync(Application.makePath(news!.body)).toString()
     return {
       msg: 'news got',
-      data: {...news.toJSON(),body}
+      data: {
+        ...news.toJSON(),
+        body,
+        sections
+      }
     }
   }
   public async store({request, response}: HttpContextContract){
@@ -40,14 +46,18 @@ export default class NewsController {
       const bodyPath = `media/contenido/${data.writer}/${fileFolder}/`
       await data.body.move(Application.makePath(bodyPath))
 
-      const createdNew = new News()
-      createdNew.fill({ ...data, body: bodyPath + data.body.clientName })
-      await createdNew.save()
+      const createdNews = await News.create({
+        ...data,
+        body: bodyPath + data.body.clientName
+      })
+      await createdNews.related('sections').attach(data.sections)
+
       return response.created({
         msg:"the news were created",
-        data: createdNew.toJSON()
+        data: createdNews.toJSON()
       })
     } catch(err){
+      console.log(err)
       return response.badRequest(err)
     }
   }

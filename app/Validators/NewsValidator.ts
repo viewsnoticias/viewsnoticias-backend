@@ -1,4 +1,4 @@
-import { schema } from '@ioc:Adonis/Core/Validator'
+import { schema, rules } from '@ioc:Adonis/Core/Validator'
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 export default class NewsValidator {
@@ -8,7 +8,15 @@ export default class NewsValidator {
     header: schema.string(),
     title: schema.string(),
     body: schema.file(),
-    writer: schema.string()
+    writer: schema.string(),
+    sections: schema.array().members(
+      schema.number([
+        rules.exists({
+          table:'sections',
+          column:'id'
+        })
+      ])
+    )
   })
   public messages = {}
 }
