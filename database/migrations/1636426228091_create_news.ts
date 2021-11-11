@@ -5,7 +5,7 @@ export default class CreateNoticias extends BaseSchema {
 
   public async up () {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
+      table.increments('id').primary()
       table.string('title').notNullable()
       table.string('header').notNullable()
       table.string('body').notNullable()
