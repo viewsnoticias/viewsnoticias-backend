@@ -16,4 +16,11 @@ export default class News extends BaseModel {
   public createdAt: DateTime
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  public async update(data){
+    Object.keys(data).forEach( (key) => {
+      this[key] = data[key]
+    })
+    return this.save()
+  }
 }

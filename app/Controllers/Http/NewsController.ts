@@ -11,61 +11,43 @@ export default class NewsController {
       data: news
     })
   }
-  public async update({ params, request, response }){
-    const body = request.body()
-    const news = await News.find(params.id)
-    if (!news){
-      return response.notFound({
-        msg:"news were not found"
-      })
-    }
-    for (const key of body ){
-      news[key] = body[key]
-    }
-    try {
+  public async update({ params, request }){
+    const news = await News.findOrFail(params.id)
 
-      await news.save()
-      return response.ok({
-        msg:"news updated"
-      })
-    } catch(err) {
-      return response.badRequest(err)
-    }
+    news.update(request.body())
+    await news.save()
+
+    return { msg: 'news updated' }
   }
-  public async destroy({ params, response }){
-    const news = await News.find(params.id)
-    await news?.delete()
-    return response.ok({msg:"news deleted"})
+  public async destroy({ params }){
+    const news = await News.findOrFail(params.id)
+    await news.delete()
+    return { msg: 'news deleted' }
   }
-  public async show({ params, response }){
-    const news = await News.find(params.id)
-    if (!news){
-      return response.notFound({msg:"news were not found"})
-    }
+  public async show({ params }){
+    const news = await News.findOrFail(params.id)
     const body = readFileSync(Application.makePath(news.body)).toString()
-    return response.ok({
-      msg:"news got",
+    return {
+      msg: 'news got',
       data: {...news.toJSON(),body}
-    })
+    }
   }
   public async store({request, response}: HttpContextContract){
     try{
       const data = await request.validate(NewsValidator)
+
       const fileFolder = Math.random().toString(32)
       const bodyPath = `media/contenido/${data.writer}/${fileFolder}/`
       await data.body.move(Application.makePath(bodyPath))
+
       const createdNew = new News()
-      createdNew.header = data.header
-      createdNew.title = data.title
-      createdNew.body = bodyPath + data.body.clientName
-      createdNew.writer = data.writer
+      createdNew.fill({ ...data, body: bodyPath + data.body.clientName })
       await createdNew.save()
       return response.created({
         msg:"the news were created",
         data: createdNew.toJSON()
       })
     } catch(err){
-      console.log(err)
       return response.badRequest(err)
     }
   }
