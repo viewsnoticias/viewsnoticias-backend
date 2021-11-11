@@ -9,7 +9,7 @@ export default class CreateNoticias extends BaseSchema {
       table.string('title').notNullable()
       table.string('header').notNullable()
       table.string('body').notNullable()
-      table.string('writer').notNullable()
+      table.integer('writer').unsigned().references('users.id')
       /**
        * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
        */
