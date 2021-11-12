@@ -1,11 +1,21 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, HasMany, hasMany, ManyToMany, manyToMany } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  BelongsTo,
+  belongsTo,
+  column,
+  ManyToMany,
+  manyToMany
+} from '@ioc:Adonis/Lucid/Orm'
 import Section from './Section'
 import User from './User'
 
 export default class News extends BaseModel {
   @column({ isPrimary: true })
   public id: number
+
+  @column()
+  public userId: number
 
   @column()
   public title: string
@@ -16,8 +26,8 @@ export default class News extends BaseModel {
   @column()
   public body: string
 
-  @hasMany(()=> User)
-  public writer: HasMany<typeof User>
+  @belongsTo(()=> User)
+  public user: BelongsTo<typeof User>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
@@ -30,7 +40,7 @@ export default class News extends BaseModel {
 
   public async update(data){
     Object.keys(data).forEach( (key) => {
-      this[key] = data[key]
+      if (key !== 'user' && key !== 'userId') this[key] = data[key]
     })
     return this.save()
   }

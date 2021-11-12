@@ -8,7 +8,7 @@ export default class NewsValidator {
     header: schema.string(),
     title: schema.string(),
     body: schema.file(),
-    writer: schema.number([
+    user: schema.number([
       rules.exists({
         table:'users',
         column:'id'
