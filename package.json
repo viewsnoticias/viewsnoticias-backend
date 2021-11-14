@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "node ace serve --watch",
     "build": "node ace build --production",
-    "start": "node build/server.js"
+    "start": "node server.js"
+  },
+  "engines":{
+    "node":"16.11.1"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^5.3.8",
