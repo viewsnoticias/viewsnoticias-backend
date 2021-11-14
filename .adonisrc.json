@@ -21,9 +21,11 @@
     "./providers/AppProvider",
     "@adonisjs/core",
     "@adonisjs/lucid",
-    "@adonisjs/auth"
+    "@adonisjs/auth",
+    "@adonisjs/view"
   ],
   "aceProviders": [
     "@adonisjs/repl"
-  ]
+  ],
+  "metaFiles": []
 }
