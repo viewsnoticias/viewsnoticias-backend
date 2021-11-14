@@ -59,7 +59,7 @@ const databaseConfig: DatabaseConfig = {
     |
     */
     mysql: {
-      client: 'mysql',
+      client: 'pg',
       connection: {
         host: Env.get('MYSQL_HOST'),
         port: Env.get('MYSQL_PORT'),
