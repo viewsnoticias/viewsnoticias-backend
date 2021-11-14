@@ -1,1 +1,7 @@
-web:npm i;npm run build;cd build;npm ci --production;node ace migration:run --force;npm start
+web:npm i
+web:npm run build
+web:cd build
+web:npm ci --production
+web:node ace migration:run --force
+web:node ace db:seed
+web:npm start
