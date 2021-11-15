@@ -13,9 +13,11 @@ export default class CreateNoticias extends BaseSchema {
             .unsigned()
             .references('users.id')
             .onDelete('CASCADE')
-      /**
-       * Uses timestamptz for PostgreSQL and DATETIME2 for MSSQL
-       */
+
+      //0 = verificado
+      //1 = pendiente
+      //2 = negado
+      table.integer('status').defaultTo(1)
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
     })

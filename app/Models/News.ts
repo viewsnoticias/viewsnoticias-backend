@@ -26,6 +26,10 @@ export default class News extends BaseModel {
   @column()
   public body: string
 
+  @column({ serialize:(value) => ['verificado','pendiente','negado'][value] })
+  public status: number
+
+
   @belongsTo(()=> User)
   public user: BelongsTo<typeof User>
 

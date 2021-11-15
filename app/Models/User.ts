@@ -27,6 +27,8 @@ export default class User extends BaseModel {
 
   @column({ serialize:() => undefined })
   public password: string
+  @column({ serialize:(value) => ['verificado','pendiente','negado'][value] })
+  public status: number
 
   @manyToMany( () => Role, { pivotTable: 'users_roles' })
   public roles: ManyToMany<typeof Role>

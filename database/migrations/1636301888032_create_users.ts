@@ -10,6 +10,10 @@ export default class Users extends BaseSchema {
       table.string('last_name')
       table.string('email').unique()
       table.string('password')
+      //0 = verificado
+      //1 = pendiente
+      //2 = negado
+      table.integer('status').defaultTo(1)
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
     })
