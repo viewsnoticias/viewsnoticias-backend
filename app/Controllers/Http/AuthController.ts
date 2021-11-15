@@ -20,11 +20,17 @@ export default class AuthController {
             .delete()
       const token = await auth.use('api').generate(user)
       return {
-        data: { token },
+        data: { token: token.token },
         msg:"logged succefully"
       }
     } catch(err){
       return response.badRequest(err)
     }
+  }
+  public async profile({ auth }){
+    return { data: auth.user }
+  }
+  public async check(){
+    return { msg:'logged' }
   }
 }
