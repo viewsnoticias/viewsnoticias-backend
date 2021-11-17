@@ -1,4 +1,4 @@
-// import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 import Database from "@ioc:Adonis/Lucid/Database"
 import User from "App/Models/User"
@@ -30,7 +30,10 @@ export default class AuthController {
   public async profile({ auth }){
     return { data: auth.user }
   }
-  public async check(){
-    return { msg:'logged' }
+  public async check({ auth, response }:HttpContextContract){
+    if (!(await auth.use('api').check())){
+      return response.unauthorized({msg:"unautorized"})
+    }
+    return response.ok({msg:"authorized"})
   }
 }

@@ -29,7 +29,6 @@ export default class News extends BaseModel {
   @column({ serialize:(value) => ['verificado','pendiente','negado'][value] })
   public status: number
 
-
   @belongsTo(()=> User)
   public user: BelongsTo<typeof User>
 
@@ -39,7 +38,7 @@ export default class News extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
-  @manyToMany( () => Section, { pivotTable: 'news_sections' })
+  @manyToMany(() => Section,{ pivotTable: 'news_sections'})
   public sections: ManyToMany<typeof Section>
 
   public async update(data){

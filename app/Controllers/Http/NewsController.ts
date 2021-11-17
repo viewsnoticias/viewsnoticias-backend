@@ -6,10 +6,14 @@ import { readFileSync } from 'fs'
 import User from 'App/Models/User';
 export default class NewsController {
   public async index({ response }){
-    const news = await News.all()
+    const newsList = await News.query().preload('user').preload('sections')
+    const newsJSON = newsList.map((news,i)=> {
+      const sections = news.sections.map(section => section.name )
+      return { ...news.toJSON(), sections }
+    })
     return response.ok({
       msg:"news got",
-      data: news
+      data: newsJSON
     })
   }
   public async update({ params, request }){
@@ -37,17 +41,19 @@ export default class NewsController {
       }
     }
   }
-  public async store({request, response}: HttpContextContract){
+  public async store({request, response, auth}: HttpContextContract){
     try{
+      if (!auth.user){
+        return response.badRequest({msg:"usuario no lodeado"})
+      }
       const data = await request.validate(NewsValidator)
-      const user = await User.findOrFail(data.user)
-      await data.body.move(user.repository())
+      await data.body.move(auth.user.repository())
       const createdNews = await News.create({
         ...data,
-        body: user.repository() + data.body.clientName,
+        body: auth.user.repository() + data.body.clientName,
       })
       await createdNews.related('sections').attach(data.sections)
-      await createdNews.related('user').associate(user)
+      await createdNews.related('user').associate(auth.user)
 
       return response.created({
         msg:"the news were created",
