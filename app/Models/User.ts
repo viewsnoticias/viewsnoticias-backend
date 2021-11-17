@@ -47,7 +47,8 @@ export default class User extends BaseModel {
     user.password = await Hash.make(user.password)
   }
   public async verifyPassword(password: string){
-    return await Hash.verify(this.password, password)
+    const isValid = await Hash.verify(this.password, password)
+    return isValid
   }
   public async update(data){
     Object.keys(data).forEach( (key) => {

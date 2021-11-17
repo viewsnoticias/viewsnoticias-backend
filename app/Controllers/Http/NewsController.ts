@@ -31,12 +31,10 @@ export default class NewsController {
     await news.load('sections')
     await news.load('user')
     const sections = news.sections.map(section => section.name )
-    const body = readFileSync(Application.makePath(news!.body)).toString()
     return {
       msg: 'news got',
       data: {
         ...news.toJSON(),
-        body,
         sections
       }
     }
@@ -47,11 +45,7 @@ export default class NewsController {
         return response.badRequest({msg:"usuario no lodeado"})
       }
       const data = await request.validate(NewsValidator)
-      await data.body.move(auth.user.repository())
-      const createdNews = await News.create({
-        ...data,
-        body: auth.user.repository() + data.body.clientName,
-      })
+      const createdNews = await News.create(data)
       await createdNews.related('sections').attach(data.sections)
       await createdNews.related('user').associate(auth.user)
 

@@ -7,7 +7,7 @@ export default class NewsValidator {
   public schema = schema.create({
     header: schema.string(),
     title: schema.string(),
-    body: schema.file(),
+    body: schema.string(),
     sections: schema.array().members(
       schema.number([
         rules.exists({

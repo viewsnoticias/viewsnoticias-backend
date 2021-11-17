@@ -8,7 +8,7 @@ export default class CreateNoticias extends BaseSchema {
       table.increments('id').primary()
       table.string('title').notNullable()
       table.string('header').notNullable()
-      table.string('body').notNullable()
+      table.text('body').notNullable()
       table.integer('user_id')
             .unsigned()
             .references('users.id')

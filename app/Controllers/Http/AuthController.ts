@@ -11,7 +11,9 @@ export default class AuthController {
     }
     const user = await User.findByOrFail('email',body.email)
     try{
-      if (!(await user.verifyPassword(body.password))){
+      const passwordVerify = await user.verifyPassword(body.password)
+      console.log(passwordVerify)
+      if (!passwordVerify){
         return response.notFound({ msg: "password incorrect" })
       }
       await Database
