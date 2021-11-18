@@ -30,8 +30,9 @@ export default class UsersController {
       data: user.toJSON()
     }
   }
-  public async myNews({params, response}){
-    const news = await News.query().where('user_id', params.id)
+  public async myNews({ response, auth}:HttpContextContract){
+    await auth.user?.load('news')
+    const news = auth.user?.news
     if(!news) return response.notFound({ msg: "you havent news" })
     return {
       msg:"news got",

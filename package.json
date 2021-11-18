@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node ace serve --watch",
-    "build": "node ace build --production;cd build;npm ci --production;node ace migration:run --force",
+    "build": "node ace build --production",
     "start": "node server.js"
   },
   "engines": {

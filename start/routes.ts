@@ -20,7 +20,7 @@ Route.group(()=>{
   Route.resource('/news','NewsController').except(['edit','create','show','index'])
   Route.resource('/sections','SectionsController').except(['edit','create','show','index'])
   Route.resource('/users','UsersController').except(['edit','create'])
-  Route.get('/my-news/:id','UsersController.myNews')
+  Route.get('/my-news','UsersController.myNews')
   Route.resource('/roles','RolesController').except(['edit','create'])
   Route.get('/user/profile','AuthController.profile')
 }).prefix('api/v1').middleware('Auth')

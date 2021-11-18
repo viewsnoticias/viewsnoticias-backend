@@ -1,13 +1,10 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import News from "App/Models/News";
 import NewsValidator from "App/Validators/NewsValidator";
-import Application from "@ioc:Adonis/Core/Application";
-import { readFileSync } from 'fs'
-import User from 'App/Models/User';
 export default class NewsController {
   public async index({ response }){
     const newsList = await News.query().preload('user').preload('sections')
-    const newsJSON = newsList.map((news,i)=> {
+    const newsJSON = newsList.map((news)=> {
       const sections = news.sections.map(section => section.name )
       return { ...news.toJSON(), sections }
     })
