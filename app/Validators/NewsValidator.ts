@@ -5,7 +5,9 @@ export default class NewsValidator {
   constructor(protected ctx: HttpContextContract) {}
 
   public schema = schema.create({
-    header: schema.string(),
+    header: schema.file({
+      extnames:['gif','png','jpg','jpeg']
+    }),
     title: schema.string(),
     body: schema.string(),
     sections: schema.array().members(

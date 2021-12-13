@@ -1,3 +1,4 @@
+import Application from '@ioc:Adonis/Core/Application';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import News from "App/Models/News";
 import NewsValidator from "App/Validators/NewsValidator";
@@ -15,7 +16,13 @@ export default class NewsController {
   }
   public async update({ params, request }){
     const news = await News.findOrFail(params.id)
-    await news.update(request.body())
+    const body = request.body()
+    const header = request.file('header')
+    if (header){
+      await header.move(Application.publicPath())
+    }
+    await news.update({...body,header: header.fileName})
+    await news.related('sections').sync(body.sections)
     return { msg: 'news updated' }
   }
   public async destroy({ params }){
@@ -42,7 +49,11 @@ export default class NewsController {
         return response.badRequest({msg:"usuario no lodeado"})
       }
       const data = await request.validate(NewsValidator)
-      const createdNews = await News.create(data)
+      await data.header.move(Application.publicPath())
+      const createdNews = await News.create({
+        ...data,
+        header:data.header.fileName
+      })
       await createdNews.related('sections').attach(data.sections)
       await createdNews.related('user').associate(auth.user)
 

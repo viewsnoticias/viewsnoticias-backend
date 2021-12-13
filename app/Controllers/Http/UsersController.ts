@@ -1,4 +1,5 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import News from 'App/Models/News'
 import User from "App/Models/User"
 import UserValidator from 'App/Validators/UserValidator'
 
@@ -28,13 +29,26 @@ export default class UsersController {
       data: user.toJSON()
     }
   }
-  public async myNews({ response, auth}:HttpContextContract){
+  public async allMyNews({ response, auth}:HttpContextContract){
     await auth.user?.load('news')
     const news = auth.user?.news
     if(!news) return response.notFound({ msg: "you havent news" })
     return {
       msg:"news got",
       data: news
+    }
+  }
+  public async myNews({ response, auth, params}:HttpContextContract){
+    const user = auth.user
+    const userNews = await News
+                            .query()
+                            .where({id: params.id, user_id: user?.id })
+                            .first()
+    await userNews?.load('sections')
+    if(!userNews) return response.notFound({ msg: "you havent news" })
+    return {
+      msg:"news got",
+      data: userNews,
     }
   }
   public async store({request, response}: HttpContextContract){
