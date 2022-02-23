@@ -41,6 +41,13 @@ export default class NewsController {
       data: news
     }
   }
+  public async mostViews() {
+    const news = await News.query().where({}).orderBy('visits').paginate(1,5)
+    return {
+      msg:'news most visited',
+      data: news
+    }
+  }
   public async update({ params, request }){
     const news = await News.findOrFail(params.id)
     const body = request.body()

@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import {
   BaseModel,
+  beforeFetch,
   BelongsTo,
   belongsTo,
   column,
@@ -43,6 +44,7 @@ export default class News extends BaseModel {
 
   @manyToMany(() => Section,{ pivotTable: 'news_sections'})
   public sections: ManyToMany<typeof Section>
+
 
   public async update(data){
     Object.keys(data).forEach( (key) => {
