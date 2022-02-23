@@ -11,6 +11,7 @@ Route.post('api/v1/auth/check','AuthController.check')
 //rutas para obtener noticias y secciones
 Route.group(()=> {
   Route.get('/news','NewsController.index')
+  Route.get('/news/currents','NewsController.fiveResent')
   Route.get('/news/:id','NewsController.show')
   Route.get('/files','FilesController.show')
   Route.get('/sections','SectionsController.index')

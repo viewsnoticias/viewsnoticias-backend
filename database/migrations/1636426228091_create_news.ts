@@ -13,7 +13,7 @@ export default class CreateNoticias extends BaseSchema {
             .unsigned()
             .references('users.id')
             .onDelete('CASCADE')
-
+      table.integer('visits').defaultTo(0)
       //0 = verificado
       //1 = pendiente
       //2 = negado

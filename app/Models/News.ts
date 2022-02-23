@@ -26,6 +26,9 @@ export default class News extends BaseModel {
   @column()
   public body: string
 
+  @column()
+  public visits: number
+
   @column({ serialize:(value) => ['verificado','pendiente','negado'][value] })
   public status: number
 
