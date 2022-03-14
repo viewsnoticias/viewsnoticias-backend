@@ -1,38 +1,43 @@
 import Application from '@ioc:Adonis/Core/Application';
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import Database from '@ioc:Adonis/Lucid/Database';
 import News from "App/Models/News";
 import NewsValidator from "App/Validators/NewsValidator";
 export default class NewsController {
   public async index({ response, request }:HttpContextContract){
-    const querys = request.qs()
-    let {orderBy, order,query, page, limit } = querys
-    let results: any = null
+    let sections: any = null
+    try{
+      //obtengo las url query
+      const querys = request.qs()
+      let { orderBy, order, query, page, limit } = querys
+      // defino la consulta para obtener las noticias
+      query = JSON.parse(query || "{}")
+      if (query.section_id){
+        sections =  await Database.from('news_sections')
+        .where({ section_id: query.section_id })
+        .select('news_id')
+        console.log(sections)
+      }
+      const newsIds = sections ? sections.map(({news_id})=>news_id): []
+      delete query.section_id
+      const queryNews = News.query()
 
-    if (orderBy){
-      results = await News.query()
-        .where(JSON.parse(query || "{}"))
-        .preload('user')
-        .preload('sections')
-        .orderBy(orderBy,order)
-        .paginate(page|| 1, limit || 10)
-    } else{
+      if (newsIds.length > 0) queryNews.whereIn('id',newsIds).andWhere(query)
+      else queryNews.where(query)
+      queryNews.preload('user').preload('sections')
 
-      results = await News.query()
-        .where(JSON.parse(query || "{}"))
-        .preload('user')
-        .preload('sections')
-        .paginate(page|| 1, limit || 10)
+      if (orderBy) {
+        queryNews.orderBy( order === 'desc' ? '-' + orderBy : orderBy)
+      }
+      const results = await (await queryNews.paginate(page|| 1, limit || 10)).all()
+      return response.ok({
+        msg:"news got",
+        data: results
+      })
+    } catch(err){
+      console.log('error at new_controller->index',err)
+      return response.status(err.status || 400).send(err)
     }
-
-    const newsList = results.all()
-    const newsJSON = newsList.map((news)=> {
-      const sections = news.sections.map(section => section.name )
-      return { ...news.toJSON(), sections }
-    })
-    return response.ok({
-      msg:"news got",
-      data: newsJSON
-    })
   }
   public async fiveResent() {
     const news = await News.query().where({}).orderBy('createdAt').paginate(1,5)

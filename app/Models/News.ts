@@ -45,7 +45,6 @@ export default class News extends BaseModel {
   @manyToMany(() => Section,{ pivotTable: 'news_sections'})
   public sections: ManyToMany<typeof Section>
 
-
   public async update(data){
     Object.keys(data).forEach( (key) => {
       if (key !== 'user' && key !== 'userId') this[key] = data[key]
