@@ -1,5 +1,4 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-
 import Database from "@ioc:Adonis/Lucid/Database"
 import User from "App/Models/User"
 
@@ -14,7 +13,7 @@ export default class AuthController {
       const passwordVerify = await user.verifyPassword(body.password)
       console.log(passwordVerify)
       if (!passwordVerify){
-        return response.notFound({ msg: "password incorrect" })
+        return response.badRequest({ msg: "password incorrect" })
       }
       await Database
             .from('api_tokens')

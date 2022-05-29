@@ -27,4 +27,5 @@ Route.group(()=>{
   Route.get('/my-news/:id','UsersController.myNews')
   Route.resource('/roles','RolesController').except(['edit','create'])
   Route.get('/user/profile','AuthController.profile')
-}).prefix('api/v1').middleware('Auth')
+}).prefix('api/v1')
+//.middleware('Auth')
