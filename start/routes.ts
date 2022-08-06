@@ -28,4 +28,4 @@ Route.group(()=>{
   Route.resource('/roles','RolesController').except(['edit','create'])
   Route.get('/user/profile','AuthController.profile')
 }).prefix('api/v1')
-//.middleware('Auth')
+  .middleware('Auth')

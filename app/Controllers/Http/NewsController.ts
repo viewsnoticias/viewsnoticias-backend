@@ -16,7 +16,6 @@ export default class NewsController {
         sections =  await Database.from('news_sections')
         .where({ section_id: query.section_id })
         .select('news_id')
-        console.log(sections)
       }
       const newsIds = sections ? sections.map(({news_id})=>news_id): []
       delete query.section_id
@@ -56,11 +55,15 @@ export default class NewsController {
   public async update({ params, request }){
     const news = await News.findOrFail(params.id)
     const body = request.body()
+    const data = body
     const header = request.file('header')
+    if(header) {
+      data.header = header.fileName
+    }
     if (header){
       await header.move(Application.publicPath())
     }
-    await news.update({...body,header: header.fileName})
+    await news.update(data)
     await news.related('sections').sync(body.sections)
     return { msg: 'news updated' }
   }
@@ -71,7 +74,6 @@ export default class NewsController {
   }
   public async show({ params, request }){
     const { host:requestHost } = request.headers()
-    console.log(requestHost)
     const news = await News.findOrFail(params.id)
     await news.load('sections')
     await news.load('user')
@@ -93,9 +95,7 @@ export default class NewsController {
   }
   public async store({request, response, auth}: HttpContextContract){
     try{
-      if (!auth.user){
-        return response.badRequest({msg:"usuario no lodeado"})
-      }
+      if (!auth.user) return response.badRequest({msg:"user not found"})
       const data = await request.validate(NewsValidator)
       await data.header.move(Application.publicPath())
       const createdNews = await News.create({
