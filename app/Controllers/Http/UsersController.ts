@@ -54,17 +54,18 @@ export default class UsersController {
   public async store({request, response}: HttpContextContract){
     try{
       const data = await request.validate(UserValidator)
-
+      const roles = data.roles 
+      delete data.roles
       const createdUser = new User()
       createdUser.fill({ ...data,email: data.email.toLowerCase() })
-      await createdUser.related('roles').attach(data.roles)
-
       await createdUser.save()
+      await createdUser.related('roles').attach(roles)
       return response.created({
         msg:"the user were created",
         data: createdUser.toJSON()
       })
     } catch(err){
+      console.log('USER-STORE',err)
       return response.badRequest(err)
     }
   }
