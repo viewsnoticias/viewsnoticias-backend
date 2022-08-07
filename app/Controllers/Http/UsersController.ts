@@ -15,8 +15,13 @@ export default class UsersController {
     })
   }
   public async update({ params, request }){
+    const body = request.body()
     const user = await User.findOrFail(params.id)
-    await user.update(request.body())
+    if (body.roles){
+      await user.related('roles').detach()
+      await user.related('roles').attach(body.roles)
+    }
+    await user.update(body)
     return { msg: 'user updated' }
   }
   public async destroy({ params }){
