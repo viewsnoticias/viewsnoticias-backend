@@ -6,6 +6,9 @@ import UserValidator from 'App/Validators/UserValidator'
 export default class UsersController {
   public async index({ response }){
     const users = await User.all()
+    for (const i in users){
+      await users[i].load('roles')
+    }
     return response.ok({
       msg:"users got",
       data: users
