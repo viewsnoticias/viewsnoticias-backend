@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon'
 import {
   BaseModel,
-  beforeFetch,
   BelongsTo,
   belongsTo,
   column,

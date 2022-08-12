@@ -61,9 +61,10 @@ export default class UsersController {
   }
   public async store({request, response}: HttpContextContract){
     try{
-      const data = await request.validate(UserValidator)
-      const roles = data.roles 
-      delete data.roles
+      const varifiedData = await request.validate(UserValidator)
+      const data = { ...varifiedData, roles: undefined }
+      const roles = varifiedData.roles 
+
       const createdUser = new User()
       createdUser.fill({ ...data,email: data.email.toLowerCase() })
       await createdUser.save()
