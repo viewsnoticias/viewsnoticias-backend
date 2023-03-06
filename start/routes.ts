@@ -4,28 +4,41 @@ Route.get('/', async () => {
   return { data:"tkm ❤❤❤" }
 })
 
-Route.post('api/v1/auth/login','AuthController.login')
-Route.post('api/v1/auth/check','AuthController.check')
-
-
-//rutas para obtener noticias y secciones
-Route.group(()=> {
-  Route.get('/news','NewsController.index')
-  Route.get('/news/currents','NewsController.fiveResent')
-  Route.get('/news/most-views','NewsController.mostViews')
-  Route.get('/news/:id','NewsController.show')
-  Route.get('/files','FilesController.show')
-  Route.get('/sections','SectionsController.index')
-  Route.get('/sections/:id','SectionsController.show')
-}).prefix('api/v1')
-//grupo de rutas de la api (backend)
 Route.group(()=>{
-  Route.resource('/news','NewsController').except(['edit','create','show','index'])
-  Route.resource('/sections','SectionsController').except(['edit','create','show','index'])
-  Route.resource('/users','UsersController').except(['edit','create'])
-  Route.get('/my-news','UsersController.allMyNews')
-  Route.get('/my-news/:id','UsersController.myNews')
-  Route.resource('/roles','RolesController').except(['edit','create'])
-  Route.get('/user/profile','AuthController.profile')
-}).prefix('api/v1')
-  .middleware('Auth')
+
+  Route.post('/auth/login','AuthController.login')
+  Route.post('/auth/check','AuthController.check')
+
+  Route.get('/files','FilesController.show')
+  //rutas para web
+  Route.group(() => {
+    Route.get('/web/news','WebnewsController.index')
+    Route.get('/web/news/currents','WebnewsController.fiveResent')
+    Route.get('/web/news/most-views','WebnewsController.mostViews')
+    Route.get('/web/news/:id','WebnewsController.show')
+    Route.get('/web/sections','SectionsController.index')
+    Route.get('/web/sections/:id','SectionsController.show')
+  })
+  //rutas para el admin
+  Route.group(()=>{
+    Route.resource('/writer/news','Writer/NewsController').apiOnly()
+
+    Route.get('/news','AdminNewsController.index')
+    Route.get('/news/id','AdminNewsController.show')
+    Route.get('/news/id/status','AdminNewsController.status')
+
+    Route.resource('/sections','SectionsController').apiOnly()
+    Route.resource('/users','UsersController').apiOnly()
+
+    Route.get('/my-news','UsersController.allMyNews')
+    Route.get('/my-news/:id','UsersController.myNews')
+    
+    Route.resource('/roles','RolesController').apiOnly()
+    
+    Route.get('/user/profile','AuthController.profile')
+  })
+  .middleware('Permi')
+  //.middleware('Auth')
+  //permissions
+
+}).prefix('api')
