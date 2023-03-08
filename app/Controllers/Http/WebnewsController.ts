@@ -6,15 +6,15 @@ export default class WebnewsController {
   public async index({request, response }:HttpContextContract){
     let { orderBy, order, query, page, limit } = request.qs()
     query = JSON.parse(query || "{}")
-    let sectionQuery:any = null
     try{
       const queryNews = News.query()
       if (query.section_id!==undefined){
-        queryNews.has('sections','=',query.section_id)
+        queryNews.whereHas('sections',(q)=>{
+          q.where('id',query.section_id)
+        })
         delete query['section_id']
       }
-      queryNews.where(query).preload('user').preload('sections')
-      queryNews.has('user','=',auth.user?.id)
+      queryNews.where(query).preload('writer',(q)=>{q.select(['name','last_name'])}).preload('sections')
       if (orderBy) {
         queryNews.orderBy( order === 'desc' ? '-' + orderBy : orderBy)
       }
@@ -27,16 +27,10 @@ export default class WebnewsController {
   }
 	public async fiveResent() {
     const news = await News.query().where({}).orderBy('createdAt').paginate(1,5)
-    return {
-      msg:'news resents',
-      data: news
-    }
+    return news
   }
   public async mostViews() {
     const news = await News.query().where({}).orderBy('visits').paginate(1,5)
-    return {
-      msg:'news most visited',
-      data: news
-    }
+    return news
   }
 }

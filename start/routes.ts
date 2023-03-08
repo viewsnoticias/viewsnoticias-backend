@@ -22,23 +22,23 @@ Route.group(()=>{
   //rutas para el admin
   Route.group(()=>{
     Route.resource('/writer/news','Writer/NewsController').apiOnly()
-
     Route.get('/news','AdminNewsController.index')
-    Route.get('/news/id','AdminNewsController.show')
-    Route.get('/news/id/status','AdminNewsController.status')
+    Route.get('/news/:id','AdminNewsController.show')
+    Route.get('/news/:id/status','AdminNewsController.status')
 
     Route.resource('/sections','SectionsController').apiOnly()
     Route.resource('/users','UsersController').apiOnly()
+    Route.resource('/writers','Writer/WriterController').apiOnly()
 
-    Route.get('/my-news','UsersController.allMyNews')
-    Route.get('/my-news/:id','UsersController.myNews')
+    // Route.get('/my-news','UsersController.allMyNews')
+    // Route.get('/my-news/:id','UsersController.myNews')
     
     Route.resource('/roles','RolesController').apiOnly()
     
     Route.get('/user/profile','AuthController.profile')
   })
   .middleware('Permi')
-  //.middleware('Auth')
+  .middleware('Auth')
   //permissions
 
 }).prefix('api')

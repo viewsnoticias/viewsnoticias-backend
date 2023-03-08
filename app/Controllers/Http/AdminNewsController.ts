@@ -3,20 +3,22 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Database from '@ioc:Adonis/Lucid/Database';
 import News from "App/Models/News";
 import NewsValidator from "App/Validators/NewsValidator";
+import { bind } from '@adonisjs/route-model-binding'
+
 export default class NewsController {
-  public async status({response,request}){}
+
   public async index({request, response }:HttpContextContract){
     let { orderBy, order, query, page, limit } = request.qs()
     query = JSON.parse(query || "{}")
-    let sectionQuery:any = null
     try{
       const queryNews = News.query()
       if (query.section_id!==undefined){
-        queryNews.has('sections','=',query.section_id)
+        queryNews.whereHas('sections',(q)=>{
+          q.where('id',query.section_id)
+        })
         delete query['section_id']
       }
-      queryNews.where(query).preload('user').preload('sections')
-      queryNews.has('user','=',auth.user?.id)
+      queryNews.where(query).preload('writer').preload('sections')
       if (orderBy) {
         queryNews.orderBy( order === 'desc' ? '-' + orderBy : orderBy)
       }
@@ -28,25 +30,19 @@ export default class NewsController {
       return response.status(err.status || 400).send(err)
     }
   }
-  public async show({ params, request }){
-    const { host:requestHost } = request.headers()
-    const news = await News.findOrFail(params.id)
-    await news.load('sections')
-    await news.load('user')
-    const sections = news.sections.map(section => section.name )
-    if(
-      requestHost !== 'admin.viewsnoticias.com' ||
-      requestHost !== 'localhost:8081' ||
-      requestHost !== 'localhost:3333' ||
-      requestHost !== 'api.viewsnoticias.com'){
-      await news.update({visits: news.visits + 1 })
-    }
+  @bind()
+  public async status({ request }, news: News){
+    news.status = request.status
+    await news.update()
+    return { msg: "news status changed" }
+  }
+  @bind()
+  public async show({ }, news: News){
+    await news.load('sections',(q)=>{q.select('name')})
+    await news.load('writer')
     return {
       msg: 'news got',
-      data: {
-        ...news.toJSON(),
-        sections
-      }
+      data: news
     }
   }
 }

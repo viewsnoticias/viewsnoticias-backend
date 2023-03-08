@@ -4,37 +4,70 @@ import User from "App/Models/User"
 import UserValidator from 'App/Validators/UserValidator'
 
 export default class UsersController {
-  public async index({ response }){
-    const users = await User.all()
-    for (const i in users){
-      await users[i].load('roles')
+  public async index({ response, request }){
+    let { orderBy, order, query, page, limit } = request.qs()
+    query = JSON.parse(query || "{}")
+
+    try{
+      const queryUser = User.queryUsers()  
+      if (query.role_id!==undefined){
+        queryUser.whereHas('roles',(subQuery)=>{
+          subQuery.where('user_id',query.role_id)
+        })
+        delete query['role_id']
+      }
+      
+      queryUser.where(query)
+      queryUser.preload('roles')
+
+      if (orderBy) {
+        queryUser.orderBy( order === 'desc' ? '-' + orderBy : orderBy)
+      }
+
+      const results = await queryUser.paginate(page|| 1, limit || 10)
+      return response.ok(results)
+    } catch(err){
+      console.log('error at new_controller->index',err)
+      return response.status(err.status || 400).send(err)
     }
-    return response.ok({
-      msg:"users got",
-      data: users
-    })
   }
-  public async update({ params, request }){
-    const body = request.body()
-    const user = await User.findOrFail(params.id)
-    if (body.roles){
-      await user.related('roles').detach()
-      await user.related('roles').attach(body.roles)
+  public async update({ params, request, response }){
+    try {
+      const body = request.body()
+      const user = await User.queryUsers().where({ id: params.id })
+                      .first()
+      if(!user) {
+        return response.notFound({msg:"user not found"})
+      }
+      if (body.roles){
+        await user.related('roles').detach()
+        await user.related('roles').attach(body.roles)
+      }
+      await user.update(body)
+      return { msg: 'user updated', userId: user.id }
+    } catch(err) {
+      console.log('USER->update',err)
+      return response.badRequest(err)
     }
-    await user.update(body)
-    return { msg: 'user updated' }
   }
-  public async destroy({ params }){
-    const user = await User.findOrFail(params.id)
-    await user.delete()
+  public async destroy({ params, response }){
+    const user = await User.queryUsers().where({ id:params.id }).first()
+    if(!user) {
+      return response.notFound({msg:"user not found"})
+    }
+    user.disabled = 1
+    await user.save()
     return { msg: 'user deleted' }
   }
-  public async show({ params }){
-    const user = await User.findOrFail(params.id)
+  public async show({ params, response }){
+    const user = await User.queryUsers().where({ id:params.id }).first()
+    if(!user) {
+      return response.notFound({msg:"user not found"})
+    }
     await user.load('roles')
     return {
       msg: 'user got',
-      data: user.toJSON()
+      data: user
     }
   }
 
@@ -43,7 +76,6 @@ export default class UsersController {
       const varifiedData = await request.validate(UserValidator)
       const data = { ...varifiedData, roles: undefined }
       const roles = varifiedData.roles 
-
       const createdUser = new User()
       createdUser.fill({ ...data,email: data.email.toLowerCase() })
       await createdUser.save()

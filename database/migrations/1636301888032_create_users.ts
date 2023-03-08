@@ -10,6 +10,8 @@ export default class Users extends BaseSchema {
       table.string('last_name')
       table.string('email').unique()
       table.string('password')
+      table.integer('writer').defaultTo(0)
+      table.integer('disabled').defaultTo(0)
       //0 = verificado
       //1 = pendiente
       //2 = negado

@@ -25,16 +25,20 @@ export default class User extends BaseModel {
   @column()
   public email: string
 
+  @column()
+  public writer: number
+
+  @column()
+  public disabled: number
+
   @column({ serialize:() => undefined })
   public password: string
+  
   @column({ serialize:(value) => ['verificado','pendiente','negado'][value] })
   public status: number
 
   @manyToMany( () => Role, { pivotTable: 'users_roles' })
   public roles: ManyToMany<typeof Role>
-
-  @hasMany( () => News)
-  public news: HasMany<typeof News>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
@@ -42,6 +46,9 @@ export default class User extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
 
+  @hasMany(() => News)
+  public news: HasMany<typeof News>
+  
   @beforeSave()
   public static async hashPassword(user: User){
     user.password = await Hash.make(user.password)
@@ -56,7 +63,13 @@ export default class User extends BaseModel {
     })
     return this.save()
   }
-  public repository(): string {
-    return `media/repository/${this.name}${this.id}/`
+  public static queryWriters(){
+    return this.query().where({ writer: 1})
+  }
+  public isWriter(){
+    return this.writer
+  }
+  public static queryUsers() {
+    return this.query().where({ writer: 0 })
   }
 }

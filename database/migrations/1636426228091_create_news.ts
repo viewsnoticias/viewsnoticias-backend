@@ -18,6 +18,8 @@ export default class CreateNoticias extends BaseSchema {
       //1 = pendiente
       //2 = negado
       table.integer('status').defaultTo(1)
+      table.integer('deleted').defaultTo(0)
+      table.timestamp('deleted_at',{ useTz: true })
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
     })

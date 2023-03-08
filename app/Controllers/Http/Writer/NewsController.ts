@@ -4,88 +4,84 @@ import Database from '@ioc:Adonis/Lucid/Database';
 import News from "App/Models/News";
 import Section from "App/Models/Section";
 import NewsValidator from "App/Validators/NewsValidator";
+import {status} from 'App/Services/NewsService'
+
+
 export default class NewsController {
 
-  public async index({request, response }:HttpContextContract){
+  public async index({request, response, auth }:HttpContextContract){
     let { orderBy, order, query, page, limit } = request.qs()
     query = JSON.parse(query || "{}")
-    let sectionQuery:any = null
-    try{
-      const queryNews = News.query()
-      if (query.section_id!==undefined){
-        queryNews.has('sections','=',query.section_id)
+    const queryNews = auth.user.related('news').query()
+    
+    if (query.section_id!==undefined){
+        queryNews.whereHas('sections',(subQuery)=>{
+          subQuery.where('section_id',query.section_id)
+        })      
         delete query['section_id']
-      }
-      queryNews.where(query).preload('user').preload('sections')
-      queryNews.has('user','=',auth.user?.id)
-      if (orderBy) {
-        queryNews.orderBy( order === 'desc' ? '-' + orderBy : orderBy)
-      }
-      const results = await queryNews.paginate(page|| 1, limit || 10)
+    }
+    
+    queryNews.where(query)
+    queryNews.preload('writer')
+    queryNews.preload('sections')
 
-      return response.ok(results)
-    } catch(err){
-      console.log('error at new_controller->bySeciton',err)
-      return response.status(err.status || 400).send(err)
+    if (orderBy) {
+      queryNews.orderBy( order === 'desc' ? '-' + orderBy : orderBy)
     }
 
+    const results = await queryNews.paginate(page|| 1, limit || 10)
+    return results
   }
-  
-  public async update({ params, request }){
-    const news = await News.findOrFail(params.id)
+
+  public async update({ request, response, auth, params }){
     const body = request.body()
     const data = body
     const header = request.file('header')
-    if(header) {
-      data.header = header.fileName
+    try{
+      await auth.related('news').findOrFail(params.id)
+      if(header) {
+        data.header = header.fileName
+      }
+
+      if (header){
+        await header.move(Application.publicPath())
+      }
+
+      await news.update(data)
+      news.related('sections').sync(body.sections)
+      return { msg: 'news updated', newsId: news.id }
+
+    }catch(err){
+      console.log(err)
+      return response.badRequest(err)
     }
-    if (header){
-      await header.move(Application.publicPath())
-    }
-    await news.update(data)
-    await news.related('sections').sync(body.sections)
-    return { msg: 'news updated' }
   }
-  
-  public async destroy({ params }){
-    const news = await News.findOrFail(params.id)
-    await news.delete()
+  public async destroy({ auth }){
+    const news = await auth.related('news').findOrFail(params.id)
+    await news.softDelete()
     return { msg: 'news deleted' }
   }
 
-  public async show({ params, request }){
-    const { host:requestHost } = request.headers()
-    const news = await News.findOrFail(params.id)
-    await news.load('sections')
-    await news.load('user')
-    const sections = news.sections.map(section => section.name )
-    if(
-      requestHost !== 'admin.viewsnoticias.com' ||
-      requestHost !== 'localhost:8081' ||
-      requestHost !== 'localhost:3333' ||
-      requestHost !== 'api.viewsnoticias.com'){
-      await news.update({visits: news.visits + 1 })
-    }
+  public async show({ params, request, auth }){
+    const news = await auth.related('news').findOrFail(params.id)
+    await news.load('sections',(query)=>{query.select('name')})
+    await news.load('writer')
     return {
       msg: 'news got',
-      data: {
-        ...news.toJSON(),
-        sections
-      }
+      data: news
     }
   }
-  public async store({request, response, auth}: HttpContextContract){
+  public async store({request, response,auth}: HttpContextContract){
     try{
-      if (!auth.user) return response.badRequest({msg:"user not found"})
       const data = await request.validate(NewsValidator)
       await data.header.move(Application.publicPath())
-      const createdNews = await News.create({
+      const createdNews = new News({
         ...data,
-        header:data.header.fileName
+        header:data.header.fileName,
       })
-      await createdNews.related('sections').attach(data.sections)
-      await createdNews.related('user').associate(auth.user)
-
+      createdNews.related('sections').attach(data.sections)
+      createdNews.related('writer').associate(auth.user)
+      await createdNews.save()
       return response.created({
         msg:"the news were created",
         data: createdNews.toJSON()

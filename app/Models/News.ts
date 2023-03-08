@@ -14,7 +14,7 @@ export default class News extends BaseModel {
   @column({ isPrimary: true })
   public id: number
 
-  @column()
+  @column({ serializeAs: null })
   public userId: number
 
   @column()
@@ -33,13 +33,16 @@ export default class News extends BaseModel {
   public status: number
 
   @belongsTo(()=> User)
-  public user: BelongsTo<typeof User>
+  public writer: BelongsTo<typeof User>
 
   @column.dateTime({ autoCreate: true })
   public createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  @column.dateTime({ autoCreate: true })
+  public deletedAt: DateTime
 
   @manyToMany(() => Section,{ pivotTable: 'news_sections'})
   public sections: ManyToMany<typeof Section>
@@ -49,5 +52,16 @@ export default class News extends BaseModel {
       if (key !== 'user' && key !== 'userId') this[key] = data[key]
     })
     return this.save()
+  }
+  public of(user: number | User){
+    if (typeof user === typeof User){
+      return this.query().where({ user_id: user.id })
+    }
+    return this.query().where({ user_id: id })
+  }
+  public async softDelete(){
+    this.deletedAt = Date.now()
+    this.deleted = 1
+    this.save()
   }
 }

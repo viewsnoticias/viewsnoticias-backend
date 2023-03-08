@@ -18,6 +18,7 @@ export default class UserAdminSeeder extends BaseSeeder {
         lastName: 'writer',
         email:'writer@writer.com',
         password:'12345678',
+        writer:true
         status:0
       }
     )
