@@ -48,9 +48,9 @@ Route.group(()=>{
     
     Route.get('/user/profile','AuthController.profile')
   })
-  .middleware('Permi')
   .middleware('Auth')
   .middleware(hideForWriter(true))
+  .middleware('Permi')
   //permissions
 
 }).prefix('api')

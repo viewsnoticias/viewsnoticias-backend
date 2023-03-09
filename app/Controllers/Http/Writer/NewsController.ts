@@ -22,8 +22,8 @@ export default class NewsController {
     }
     
     queryNews.where(query)
-    queryNews.preload('writer')
-    queryNews.preload('sections')
+    queryNews.load('writer')
+    queryNews.load('sections')
 
     if (orderBy) {
       queryNews.orderBy( order === 'desc' ? '-' + orderBy : orderBy)

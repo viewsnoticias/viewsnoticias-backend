@@ -6,23 +6,22 @@ export default class RoleSeeder extends BaseSeeder {
     await Role.createMany([
       {
         name: 'Administrador',
-        permissions: { '*': '' }
+        permissions: { '*': ['*'] }
       },
       {
-        name: 'Escritor',
-        permissions: {
-          'GET':['my-news','my-news/:id','sections'],
-          'PUT':['my-news/:id'],
-          'POST':['my-news'],
-          'DELETE':['my-news/:id'], 
+        name: 'Administrador de Escritores',
+        permissions: { 'writers': ['GET','POST','DELETE'] }
+      },
+      {
+        name: 'Administrador de Usuarios',
+        permissions: { 
+          'users': ['GET','POST','DELETE','PUT'] 
         }
       },
       {
         name: 'Administrador de Noticias',
         permissions: {
-          'GET':['news','news/:id','sections','sections/:id'],
-          'PUT':['news/:id'],
-          'PUT':['news/:id/status'], 
+          'news':['GET','PUT'],
         }
       }
     ])

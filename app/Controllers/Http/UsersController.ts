@@ -18,7 +18,7 @@ export default class UsersController {
       }
       
       queryUser.where(query)
-      queryUser.preload('roles')
+      queryUser.load('roles')
 
       if (orderBy) {
         queryUser.orderBy( order === 'desc' ? '-' + orderBy : orderBy)
@@ -60,17 +60,19 @@ export default class UsersController {
     return { msg: 'user deleted' }
   }
   public async show({ params, response }){
-    const user = await User.queryUsers().where({ id:params.id }).first()
+    const user = await User.queryUsers()
+      .where({ id:params.id })
+      .load('roles')
+      .first()
     if(!user) {
       return response.notFound({msg:"user not found"})
     }
-    await user.load('roles')
+
     return {
       msg: 'user got',
       data: user
     }
   }
-
   public async store({request, response}: HttpContextContract){
     try{
       const varifiedData = await request.validate(UserValidator)
