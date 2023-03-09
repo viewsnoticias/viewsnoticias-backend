@@ -3,7 +3,7 @@ import News from 'App/Models/News'
 import User from "App/Models/User"
 import UserValidator from 'App/Validators/UserValidator'
 
-export default class WritersController {
+export default class AdminWritersController {
   public async index({ response, request }){
     let { orderBy, order, query, page, limit } = request.qs()
     query = JSON.parse(query || "{}")

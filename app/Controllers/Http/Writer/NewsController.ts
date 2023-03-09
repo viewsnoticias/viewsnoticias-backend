@@ -38,7 +38,10 @@ export default class NewsController {
     const data = body
     const header = request.file('header')
     try{
-      await auth.related('news').findOrFail(params.id)
+      const news = await News.query().where({id:params.id,user_id:auth.user.id}).first()
+      if (!news){
+        return response.notFound({msg:"noticia no encontrada"})
+      }
       if(header) {
         data.header = header.fileName
       }
@@ -57,13 +60,19 @@ export default class NewsController {
     }
   }
   public async destroy({ auth }){
-    const news = await auth.related('news').findOrFail(params.id)
+    const news = await News.query().where({id:params.id,user_id:auth.user.id}).first()
+    if (!news){
+      return response.notFound({msg:"noticia no encontrada"})
+    }
     await news.softDelete()
     return { msg: 'news deleted' }
   }
 
   public async show({ params, request, auth }){
-    const news = await auth.related('news').findOrFail(params.id)
+    const news = await News.query().where({id:params.id,user_id:auth.user.id}).first()
+    if (!news){
+      return response.notFound({msg:"noticia no encontrada"})
+    }
     await news.load('sections',(query)=>{query.select('name')})
     await news.load('writer')
     return {
@@ -75,13 +84,13 @@ export default class NewsController {
     try{
       const data = await request.validate(NewsValidator)
       await data.header.move(Application.publicPath())
-      const createdNews = new News({
+      const createdNews = await News.create({
         ...data,
         header:data.header.fileName,
       })
       createdNews.related('sections').attach(data.sections)
       createdNews.related('writer').associate(auth.user)
-      await createdNews.save()
+      createdNews.save()
       return response.created({
         msg:"the news were created",
         data: createdNews.toJSON()
