@@ -19,13 +19,12 @@ export default class RolesController {
 
   @bind()
   public async destroy({ params }, role: Role){
-    const role = await Role.findOrFail(params.id)
     await role.delete()
     return { msg: 'role deleted' }
   }
   @bind()
   public async show({ params }, role: Role){
-    const role = await Role.findOrFail(params.id)
+    
     return {
       msg: 'role got',
       data: role.toJSON()

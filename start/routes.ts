@@ -6,7 +6,6 @@ const hideForWriter = (hide)=> async (ctx,next)=>{
   }
   await next()
 } 
-
 Route.get('/', async () => {
   return { data:"tkm ❤❤❤" }
 })
@@ -17,13 +16,11 @@ Route.group(()=>{
     Route.resource('/writer/news','Writer/NewsController')
     Route.put('/writer/profile','Writer/WriterController.update')
     Route.get('/writer/profile','Writer/WriterController.show')
-  })
-    .middleware('Auth')
-    .middleware(hideForWriter(false))
+  
+  }).middleware('Auth').middleware(hideForWriter(false))
 
   Route.post('/auth/login','AuthController.login')
   Route.post('/auth/check','AuthController.check')
-
   Route.get('/files','FilesController.show')
   //rutas para web
   Route.group(() => {
@@ -35,17 +32,15 @@ Route.group(()=>{
     Route.get('/web/sections/:id','SectionsController.show')
   })
   //rutas para el admin
+  
   Route.group(()=>{
     Route.get('/news','AdminNewsController.index')
     Route.get('/news/:id','AdminNewsController.show')
     Route.get('/news/:id/status','AdminNewsController.status')
     Route.resource('/writers','AdminWritersController').except(['update']).apiOnly()
-
     Route.resource('/sections','SectionsController').apiOnly()
     Route.resource('/users','UsersController').apiOnly()
-    
     Route.resource('/roles','RolesController').apiOnly()
-    
     Route.get('/user/profile','AuthController.profile')
   })
   .middleware('Auth')

@@ -9,7 +9,8 @@ export default class UsersController {
     query = JSON.parse(query || "{}")
 
     try{
-      const queryUser = User.queryUsers()  
+      const queryUser = User.queryUsers() 
+
       if (query.role_id!==undefined){
         queryUser.whereHas('roles',(subQuery)=>{
           subQuery.where('user_id',query.role_id)
@@ -18,24 +19,28 @@ export default class UsersController {
       }
       
       queryUser.where(query)
-      queryUser.load('roles')
+      queryUser.where({disabled:0})
+      queryUser.preload('roles')
+      
 
       if (orderBy) {
         queryUser.orderBy( order === 'desc' ? '-' + orderBy : orderBy)
       }
 
-      const results = await queryUser.paginate(page|| 1, limit || 10)
+      const results = await queryUser.paginate(page || 1, limit || 10)
       return response.ok(results)
+      
     } catch(err){
       console.log('error at new_controller->index',err)
       return response.status(err.status || 400).send(err)
     }
   }
   public async update({ params, request, response }){
+
     try {
       const body = request.body()
-      const user = await User.queryUsers().where({ id: params.id })
-                      .first()
+      const user = await User.queryUsers().where({ id: params.id }).first()
+     
       if(!user) {
         return response.notFound({msg:"user not found"})
       }
@@ -43,8 +48,9 @@ export default class UsersController {
         await user.related('roles').detach()
         await user.related('roles').attach(body.roles)
       }
+      console.log(body.status)
       await user.update(body)
-      return { msg: 'user updated', userId: user.id }
+      return { msg: 'user updated', userId: user.id,status: user.status }
     } catch(err) {
       console.log('USER->update',err)
       return response.badRequest(err)
@@ -62,7 +68,7 @@ export default class UsersController {
   public async show({ params, response }){
     const user = await User.queryUsers()
       .where({ id:params.id })
-      .load('roles')
+      .preload('roles')
       .first()
     if(!user) {
       return response.notFound({msg:"user not found"})

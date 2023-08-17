@@ -18,7 +18,7 @@ export default class NewsController {
         })
         delete query['section_id']
       }
-      queryNews.where(query).load('writer').load('sections')
+      queryNews.where(query).preload('writer').preload('sections')
       if (orderBy) {
         queryNews.orderBy( order === 'desc' ? '-' + orderBy : orderBy)
       }
