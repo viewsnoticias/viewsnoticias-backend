@@ -40,16 +40,20 @@ export default class UsersController {
     try {
       const body = request.body()
       const user = await User.queryUsers().where({ id: params.id }).first()
-     
+      
       if(!user) {
         return response.notFound({msg:"user not found"})
       }
-      if (body.roles){
+
+      if(body.roles){
+        const roles = body.roles.map(rol => rol.id)
+        body.roles = roles
         await user.related('roles').detach()
         await user.related('roles').attach(body.roles)
       }
-      console.log(body.status)
+
       await user.update(body)
+
       return { msg: 'user updated', userId: user.id,status: user.status }
     } catch(err) {
       console.log('USER->update',err)

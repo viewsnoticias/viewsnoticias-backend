@@ -32,8 +32,9 @@ export default class NewsController {
   }
   @bind()
   public async status({ request }, news: News){
-    news.status = request.status
-    await news.update()
+    
+    news.status = request.body().status
+    await news.save()
     return { msg: "news status changed" }
   }
   @bind()

@@ -15,6 +15,7 @@ Route.group(()=>{
   Route.group(()=>{
     Route.resource('/writer/news','Writer/NewsController')
     Route.put('/writer/profile','Writer/WriterController.update')
+    Route.put('/writer/password','Writer/WriterController.passwordUpdate')
     Route.get('/writer/profile','Writer/WriterController.show')
   
   }).middleware('Auth').middleware(hideForWriter(false))
@@ -36,16 +37,19 @@ Route.group(()=>{
   Route.group(()=>{
     Route.get('/news','AdminNewsController.index')
     Route.get('/news/:id','AdminNewsController.show')
-    Route.get('/news/:id/status','AdminNewsController.status')
-    Route.resource('/writers','AdminWritersController').except(['update']).apiOnly()
+    Route.put('/news/:id','AdminNewsController.status')
+    Route.resource('/writers','AdminWritersController').apiOnly() //.except(['update']).apiOnly()
     Route.resource('/sections','SectionsController').apiOnly()
     Route.resource('/users','UsersController').apiOnly()
     Route.resource('/roles','RolesController').apiOnly()
-    Route.get('/user/profile','AuthController.profile')
+    //Route.get('/user/profile','AuthController.profile')
   })
   .middleware('Auth')
   .middleware(hideForWriter(true))
   .middleware('Permi')
   //permissions
+  Route.get('/user/profile','AuthController.profile') 
+  .middleware('Auth')
+  .middleware(hideForWriter(true))
 
 }).prefix('api')

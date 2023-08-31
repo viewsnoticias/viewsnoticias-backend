@@ -24,6 +24,28 @@ export default class AdminWritersController {
       return response.status(err.status || 400).send(err)
     }
   }
+
+  public async update({ params, request, response }){
+
+    try {
+      const body = request.body()
+      const user = await User.queryWriters().where({ id: params.id }).first()
+      
+      if(!user) {
+        return response.notFound({msg:"user not found"})
+      }
+
+      if (body.roles){
+        await user.related('roles').detach()
+        await user.related('roles').attach(body.roles)
+      }
+      await user.update(body)
+      return { msg: 'user updated', userId: user.id,status: user.status }
+    } catch(err) {
+      console.log('USER->update',err)
+      return response.badRequest(err)
+    }
+  }
   
   public async show({ params, response }){
     const writer = await User.queryWriters().where({ id:params.id }).first()
