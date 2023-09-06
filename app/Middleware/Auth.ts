@@ -13,7 +13,6 @@ export default class AuthMiddleware {
 
   protected redirectTo = '/login'
   protected async authenticate(auth: HttpContextContract['auth'], guards: (keyof GuardsList)[]) {
-    console.log("is autenticateddd", auth.use('api').isAuthenticated) // true
     let guardLastAttempted: string | undefined
     for (let guard of guards) {
        guardLastAttempted = guard
