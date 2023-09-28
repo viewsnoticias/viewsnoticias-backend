@@ -26,6 +26,9 @@ export default class User extends BaseModel {
   public email: string
 
   @column()
+  public avatar:string
+
+  @column()
   public writer: number
 
   @column()

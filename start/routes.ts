@@ -11,18 +11,20 @@ Route.get('/', async () => {
 })
 
 Route.group(()=>{
+  //S
   //writer routes
   Route.group(()=>{
     Route.resource('/writer/news','Writer/NewsController')
     Route.put('/writer/profile','Writer/WriterController.update')
     Route.put('/writer/password','Writer/WriterController.passwordUpdate')
-    Route.get('/writer/profile','Writer/WriterController.show')
-  
+    Route.get('/writer/profile', 'Writer/WriterController.show')
+    Route.put('/writer/profile/avatar','Writer/WriterController.loadAvatarProfile')
   }).middleware('Auth').middleware(hideForWriter(false))
 
   Route.post('/auth/login','AuthController.login')
   Route.post('/auth/check','AuthController.check')
   Route.get('/files','FilesController.show')
+  
   //rutas para web
   Route.group(() => {
     Route.get('/web/news','WebnewsController.index')
@@ -33,7 +35,6 @@ Route.group(()=>{
     Route.get('/web/sections/:id','SectionsController.show')
   })
   //rutas para el admin
-  
   Route.group(()=>{
     Route.get('/news','AdminNewsController.index')
     Route.get('/news/:id','AdminNewsController.show')
@@ -51,5 +52,4 @@ Route.group(()=>{
   Route.get('/user/profile','AuthController.profile') 
   .middleware('Auth')
   .middleware(hideForWriter(true))
-
 }).prefix('api')

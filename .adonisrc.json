@@ -25,7 +25,8 @@
     "@adonisjs/auth",
     "@adonisjs/view",
     "@adonisjs/route-model-binding/build/providers/RmbProvider",
-    "adonis5-scheduler"
+    "adonis5-scheduler",
+    "@adonisjs/lucid-slugify"
   ],
   "aceProviders": [
     "@adonisjs/repl"

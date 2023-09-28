@@ -22,6 +22,7 @@ export default class NewsController {
     }
     
     queryNews.where(query)
+    queryNews.where({disabled:0})
     queryNews.preload('writer')
     queryNews.preload('sections')
 
@@ -42,6 +43,7 @@ export default class NewsController {
       if (!news){
         return response.notFound({msg:"noticia no encontrada"})
       }
+      if(!body.sections)  return response.notFound({msg:"Las secciones son requeridas"}) 
       if(header) {
         data.header = header.fileName
       }
@@ -50,8 +52,8 @@ export default class NewsController {
         await header.move(Application.publicPath())
       }
 
-      await news.update(data)
       news.related('sections').sync(body.sections)
+      await news.update(data)
       return { msg: 'news updated', newsId: news.id }
 
     }catch(err){
@@ -59,13 +61,16 @@ export default class NewsController {
       return response.badRequest(err)
     }
   }
-  public async destroy({ auth }){
-    const news = await News.query().where({id:params.id,user_id:auth.user.id}).first()
-    if (!news){
-      return response.notFound({msg:"noticia no encontrada"})
+  public async destroy({params, response, auth, }){
+    const {id} = params
+    if(!id) return response.notFound({msg:"news not found"})
+    const news = await News.query().where({ id:params.id }).first()
+    if(!news) {
+      return response.notFound({msg:"news not found"})
     }
-    await news.softDelete()
-    return { msg: 'news deleted' }
+    news.disabled = 1
+    await news.save()
+    return { msg: 'Noticia eliminada' }
   }
 
   public async show({ params, request, auth }){
@@ -84,9 +89,10 @@ export default class NewsController {
     try{
       const data = await request.validate(NewsValidator)
       await data.header.move(Application.publicPath())
+      console.log(Application.publicPath('example.jpg'))
       const createdNews = await News.create({
         ...data,
-        header:data.header.fileName,
+        header:data.header.fileName, //en desarrollo
       })
       createdNews.related('sections').attach(data.sections)
       createdNews.related('writer').associate(auth.user)

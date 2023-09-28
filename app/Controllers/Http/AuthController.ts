@@ -8,7 +8,7 @@ export default class AuthController {
     const body = request.body()
     const status = ['verificado','pendiente','negado']
     if (!body.email || !body.password){
-      return response.badRequest({msg:"required data were not provided"})
+      return response.badRequest({msg:"Todos los campos son requeridos"})
     }
     const user = await User.findByOrFail('email',body.email)
     if(user.status !== 0) {
@@ -26,6 +26,7 @@ export default class AuthController {
             .delete()
 
       const token = await auth.use('api').generate(user)
+      
       return {
         data: { token: token.token },
         msg:"logged succefully"
@@ -37,7 +38,6 @@ export default class AuthController {
 
   public async profile({ auth }){
     await auth.user?.load('roles')
-
     return { data: auth.user }
   }
 

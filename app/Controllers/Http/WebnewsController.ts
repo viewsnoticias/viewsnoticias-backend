@@ -14,7 +14,7 @@ export default class WebnewsController {
         })
         delete query['section_id']
       }
-      queryNews.where(query).load('writer',(q)=>{q.select(['name','last_name'])}).load('sections')
+      queryNews.where(query).preload('writer',(q)=>{q.select(['name','last_name'])}).preload('sections')
       if (orderBy) {
         queryNews.orderBy( order === 'desc' ? '-' + orderBy : orderBy)
       }
