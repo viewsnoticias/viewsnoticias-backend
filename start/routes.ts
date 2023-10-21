@@ -22,6 +22,7 @@ Route.group(()=>{
   }).middleware('Auth').middleware(hideForWriter(false))
 
   Route.post('/auth/login','AuthController.login')
+  Route.post('/auth/witers','AuthController.authWriter')
   Route.post('/auth/check','AuthController.check')
   Route.get('/files','FilesController.show')
   
@@ -33,6 +34,10 @@ Route.group(()=>{
     Route.get('/web/news/:id','WebnewsController.show')
     Route.get('/web/sections','SectionsController.index')
     Route.get('/web/sections/:id','SectionsController.show')
+    Route.get('/web/titulares','WebnewsController.getTitulares')
+    Route.post('/web/comment',()=>{
+      console.log('comentario reañizado')
+    })
   })
   //rutas para el admin
   Route.group(()=>{
