@@ -21,6 +21,9 @@ export default class News extends BaseModel {
 
   @column()
   public title: string
+
+  @column()
+  public titular: string
  //slug de url para la web
   @column()
   @slugify({

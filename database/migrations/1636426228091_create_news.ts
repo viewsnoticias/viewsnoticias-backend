@@ -7,6 +7,7 @@ export default class CreateNoticias extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
       table.string('title').notNullable()
+      table.string('titular').notNullable()
       table.string('slug').notNullable()
       table.string('header').notNullable()
       table.text('body').notNullable()

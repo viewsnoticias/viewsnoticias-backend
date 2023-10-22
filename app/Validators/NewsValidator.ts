@@ -6,10 +6,11 @@ export default class NewsValidator {
 
   public schema = schema.create({
     header: schema.file({
-      extnames:['gif','png','jpg','jpeg']
+      extnames:['gif','png','jpg','jpeg','webp']
     }),
     title: schema.string(),
     body: schema.string(),
+    titular:schema.string(),
     sections: schema.array().members(
       schema.number([
         rules.exists({

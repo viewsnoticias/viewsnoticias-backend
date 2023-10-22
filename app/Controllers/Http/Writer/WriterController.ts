@@ -1,6 +1,7 @@
 import Application from '@ioc:Adonis/Core/Application'
-
+import { v4 as uuidv4 } from 'uuid';
 export default class WriterController {
+
   public async passwordUpdate({ auth, request, response }){
     try {
       const writer = auth.user
@@ -21,7 +22,9 @@ export default class WriterController {
         return response.badRequest({msg:"La Contraseña es invalidad"})
       }
       await writer.update({password:newPassword})
+
       return { msg: 'Password updated', writerId: writer.email,passwordVerify,writer:writer.password }
+    
     } catch(err) {
       console.log('writer->update',err)
       return response.badRequest(err)
@@ -54,11 +57,12 @@ export default class WriterController {
       })
       
       if (coverImage) {
+        const name = 'avatar_'+uuidv4()
+        coverImage.clientName=name.concat('.',coverImage.extname)
         await coverImage.move(Application.publicPath('avatars'))
       }
-
        if(!coverImage){
-         return
+         return response.badRequest({smg: 'Debes cargar una imagen'})
        }
 
        if(!coverImage.isValid){
@@ -66,7 +70,6 @@ export default class WriterController {
        }
       
       writer.update({avatar:coverImage.fileName})
-      
       return {msg:'Avatar Update',avatar:writer.avatar}
     }catch(err){
       console.log("writer update avatar profile",err)
