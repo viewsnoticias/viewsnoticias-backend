@@ -3,6 +3,11 @@ import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import News from "App/Models/News";
 import NewsValidator from "App/Validators/NewsValidator";
 
+
+import {v2 as cloudinary} from 'cloudinary';
+cloudinary.config(process.env.CLOUDINARY_URL ?? 'cloudinary://987242662715966:yUlMtQmb9UxCgywKBTC5KX-oRPs@dptbdos97');
+
+
 export default class NewsController {
   public async index({ request, response, auth }: HttpContextContract) {
     let { orderBy, order, query, page, limit } = request.qs();

@@ -25,6 +25,7 @@
     "@adonisjs/view": "^6.1.1",
     "@popperjs/core": "^2.10.2",
     "adonis5-scheduler": "^2.0.2",
+    "cloudinary": "^1.41.0",
     "luxon": "^2.1.1",
     "node-pre-gyp": "^0.17.0",
     "pg": "^8.7.1",
