@@ -1,3 +1,4 @@
+import { Request } from '@adonisjs/core/build/standalone'
 import Route from '@ioc:Adonis/Core/Route'
 
 const hideForWriter = (hide)=> async (ctx,next)=>{
@@ -25,13 +26,19 @@ Route.group(()=>{
   Route.post('/auth/witers','AuthController.authWriter')
   Route.post('/auth/check','AuthController.check')
   Route.get('/files','FilesController.show')
+
+  Route.post('/sub',({request,response})=>{
+    const {email,password} = request.body()
+    if(email === null || undefined) {return {msg: 'El email es requerido'}}
+    return {msg: email}
+  })
   
   //rutas para web
   Route.group(() => {
     Route.get('/web/news','WebnewsController.index')
-    Route.get('/web/news/currents','WebnewsController.fiveResent')
-    Route.get('/web/news/most-views','WebnewsController.mostViews')
-    Route.get('/web/news/:id','WebnewsController.show')
+    Route.get('/web/news/mostrecent','WebnewsController.mostRecent')
+    Route.get('/web/news/mostvisited','WebnewsController.mostVisited')
+    Route.get('/web/news/:slug','WebnewsController.show')
     Route.get('/web/sections','SectionsController.index')
     Route.get('/web/sections/:id','SectionsController.show')
     Route.get('/web/titulares','WebnewsController.getTitulares')

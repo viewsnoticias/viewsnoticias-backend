@@ -2,10 +2,8 @@ import Application from "@ioc:Adonis/Core/Application";
 import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import News from "App/Models/News";
 import NewsValidator from "App/Validators/NewsValidator";
+import {uploadFile}  from "../../../../helpers/uploadFile";
 
-
-import {v2 as cloudinary} from 'cloudinary';
-cloudinary.config(process.env.CLOUDINARY_URL ?? 'cloudinary://987242662715966:yUlMtQmb9UxCgywKBTC5KX-oRPs@dptbdos97');
 
 
 export default class NewsController {
@@ -92,19 +90,26 @@ export default class NewsController {
     };
   }
   public async store({ request, response, auth }: HttpContextContract) {
+    
     try {
       const data = await request.validate(NewsValidator);
-      await data.header.move(Application.publicPath());
-      console.log(Application.publicPath("example.jpg"));
+      if(!data.header){
+        return response.badRequest({msg:'Es requerida una imagen'})
+      }
+      const urlFile = await uploadFile(data.header.tmpPath)      
+      //almacenamiento local solo desarrollo pruebas
+      // await data.header.move(Application.publicPath());
+      // console.log("data",data.header)
+
       const createdNews = await News.create({
         ...data,
-        header: data.header.fileName, //en desarrollo
+        header: urlFile, //en desarrollo
       });
       createdNews.related("sections").attach(data.sections);
       createdNews.related("writer").associate(auth.user);
       createdNews.save();
       return response.created({
-        msg: "the news were created",
+        msg: "The new Post Is created",
         data: createdNews.toJSON(),
       });
     } catch (err) {

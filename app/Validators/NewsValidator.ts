@@ -3,7 +3,6 @@ import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 
 export default class NewsValidator {
   constructor(protected ctx: HttpContextContract) {}
-
   public schema = schema.create({
     header: schema.file({
       extnames:['gif','png','jpg','jpeg','webp']

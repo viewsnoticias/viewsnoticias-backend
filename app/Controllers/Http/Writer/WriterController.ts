@@ -2,6 +2,7 @@ import Application from "@ioc:Adonis/Core/Application";
 import { v4 as uuidv4 } from "uuid";
 import fs from "node:fs";
 import path from "node:path";
+import {uploadFile}  from "../../../../helpers/uploadFile";
 
 import {v2 as cloudinary} from 'cloudinary';
 cloudinary.config(process.env.CLOUDINARY_URL ?? 'cloudinary://987242662715966:yUlMtQmb9UxCgywKBTC5KX-oRPs@dptbdos97');
@@ -79,13 +80,21 @@ export default class WriterController {
       if (!coverImage.isValid) {
         return response.badRequest({ smg: coverImage.errors });
       }
-     const {secure_url} = await cloudinary.uploader.upload(coverImage.tmpPath)
-      
+
+      if(writer.avatar){
+        const nameArr = writer.avatar.split('/')
+        const nameFile = nameArr[nameArr.lenth-1]
+        const [public_id] = nameFile.split('.')
+        cloudinary.uploader.destroy(public_id)
+      }
+      const url =  await uploadFile(coverImage.tmpPath)
+
+        // const {secure_url} = await cloudinary.uploader.upload(coverImage.tmpPath)
         // const name = "avatar_" + uuidv4();
         // coverImage.clientName = name.concat(".", coverImage.extname);
         // await coverImage.move(Application.publicPath());
 
-      writer.update({ avatar: secure_url });
+      writer.update({ avatar: url });
       return { msg: "Avatar Update", avatar: writer.avatar };
     } catch (err) {
       console.log("writer update avatar profile", err);
