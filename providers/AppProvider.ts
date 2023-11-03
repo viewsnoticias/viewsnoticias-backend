@@ -13,7 +13,9 @@ export default class AppProvider {
   }
 
   public async ready () {
-    // App is ready
+   
+      await import('../start/Sokect')
+  
   }
 
   public async shutdown () {

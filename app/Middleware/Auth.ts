@@ -13,11 +13,9 @@ export default class AuthMiddleware {
 
   protected redirectTo = '/login'
   protected async authenticate(auth: HttpContextContract['auth'], guards: (keyof GuardsList)[]) {
-
     let guardLastAttempted: string | undefined
-
     for (let guard of guards) {
-      guardLastAttempted = guard
+       guardLastAttempted = guard
 
       if (await auth.use(guard).check()) {
 
@@ -25,6 +23,8 @@ export default class AuthMiddleware {
         return true
       }
     }
+
+
 
     throw new AuthenticationException(
       'Unauthorized access',

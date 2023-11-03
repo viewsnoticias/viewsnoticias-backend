@@ -3,13 +3,27 @@ import Role from 'App/Models/Role'
 
 export default class RoleSeeder extends BaseSeeder {
   public async run () {
-    await Role.create({
-      name: 'admin',
-      permissions: { '*': true }
-    })
-    await Role.create({
-      name: 'writer',
-      permissions: { 'write': true }
-    })
+    await Role.createMany([
+      {
+        name: 'Administrador',
+        permissions: { '*': ['*'] }
+      },
+      {
+        name: 'Administrador de Escritores',
+        permissions: { 'writers': ['GET','POST','DELETE'] }
+      },
+      {
+        name: 'Administrador de Usuarios',
+        permissions: { 
+          'users': ['GET','POST','DELETE','PUT'] 
+        }
+      },
+      {
+        name: 'Administrador de Noticias',
+        permissions: {
+          'news':['GET','PUT'],
+        }
+      }
+    ])
   }
 }

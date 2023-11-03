@@ -1,27 +1,28 @@
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import Section from 'App/Models/Section'
 import SectionValidator from 'App/Validators/SectionValidator'
+import { bind } from '@adonisjs/route-model-binding'
 
 export default class SectionsController {
-  public async index({ response }){
+  public async index({ }){
     const sections = await Section.all()
-    return response.ok({
+    return {
       msg:"sections got",
       data: sections
-    })
+    }
   }
-  public async update({ params, request }){
-    const section = await Section.findOrFail(params.id)
+  @bind()
+  public async update({ request }, section: Section){
     await section.update(request.body())
     return { msg: 'section updated' }
   }
-  public async destroy({ params }){
-    const section = await Section.findOrFail(params.id)
+  @bind()
+  public async destroy({},section: Section){
     await section.delete()
     return { msg: 'section deleted' }
   }
-  public async show({ params }){
-    const section = await Section.findOrFail(params.id)
+  @bind()
+  public async show({}, section: Section){
     return {
       msg: 'section got',
       data: section.toJSON()
