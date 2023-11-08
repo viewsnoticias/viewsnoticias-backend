@@ -16,9 +16,7 @@ export default class AuthMiddleware {
     let guardLastAttempted: string | undefined
     for (let guard of guards) {
        guardLastAttempted = guard
-
       if (await auth.use(guard).check()) {
-
         auth.defaultGuard = guard
         return true
       }

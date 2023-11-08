@@ -8,7 +8,6 @@ import {
   manyToMany
 } from '@ioc:Adonis/Lucid/Orm'
 import { slugify } from '@ioc:Adonis/Addons/LucidSlugify'
-
 import Section from './Section'
 import User from './User'
 
@@ -68,6 +67,7 @@ export default class News extends BaseModel {
     })
     return this.save()
   }
+  
   public of(user: number | User){
     if (typeof user === typeof User){
       return this.query().where({ user_id: user.id })
@@ -75,7 +75,6 @@ export default class News extends BaseModel {
     return this.query().where({ user_id: id })
   }
   public async softDelete(){
-    this.deletedAt = Date.now()
     this.disabled = 1
     this.save()
   }

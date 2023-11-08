@@ -1,4 +1,4 @@
-// import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { Response } from "@adonisjs/core/build/standalone";
 import News from "App/Models/News";
 
@@ -52,7 +52,7 @@ export default class WebnewsController {
     
   }
   //get a news mostVisits 
-  public async mostVisited({request,response}:HttpContextContract) {
+  public async mostVisited({response}:HttpContextContract) {
     try {
       const news = await News.query()
                    .where({ disabled: 0 })
@@ -69,14 +69,23 @@ export default class WebnewsController {
     }    
   }
   //get news by author of news five 
-  public async moreFromAuthor({response,request}){
+  public async moreFromAuthor({response,request}:HttpContextContract){
     //todo obtener cinco noticias del autor al cual se hace referencia 
     // por mas visitados ordenados por fehca
+    const {writer} = request.params()
+    if(!writer) return response.badRequest({msg:'writer is required'})
+    const news = News.query()
+                .where({ disabled: 0 })
+                .preload("writer", (q) => {q.select(["name", "last_name"])})
+                .preload("sections")
+        
     console.log('mas del autor controlador ')
+    console.log(news)
+    return news
   }
 
   //get a news by id
-  public async show({ request, response }) {
+  public async show({ request, response }:HttpContextContract) {
     const { slug } = request.params();
     try {
       if(!slug) return response.badRequest({msg:'el paramtro slud is requerido'});
@@ -98,7 +107,7 @@ export default class WebnewsController {
     }
   }
 
-  public async getTitulares({request,response}) {
+  public async getTitulares({response}:HttpContextContract) {
     const date = Date.now();
     const titulares = await News.query()
       .where("create_at", date)

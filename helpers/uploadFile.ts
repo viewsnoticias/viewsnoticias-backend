@@ -15,5 +15,10 @@ export const uploadFile = async (tmpPath)=>{
 } 
 
 export const destroitFile = async(idFile:string) =>{
-    console.log(idFile)
+    
+    const nameArr = idFile.split('/')
+    const nameFile = nameArr[nameArr.length-1]
+    const [public_id] = nameFile.split('.')
+    cloudinary.uploader.destroy(public_id)
+    
 }
