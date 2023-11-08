@@ -27,7 +27,7 @@ export default class UserAdminSeeder extends BaseSeeder {
         lastName: 'writer',
         email:'writer@writer.com',
         password:'12345678',
-        writer:true,
+        writer:1,
         status:0
       }
     )
@@ -50,6 +50,7 @@ export default class UserAdminSeeder extends BaseSeeder {
       }
     )
     await u1.related('roles').attach([1])
+    await u2.related('roles')
     await u3.related('roles').attach([4])
     await u4.related('roles').attach([2])
     await u5.related('roles').attach([3])

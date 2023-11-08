@@ -1,5 +1,5 @@
-import Application from "@ioc:Adonis/Core/Application";
-import { v4 as uuidv4 } from "uuid";
+// import Application from "@ioc:Adonis/Core/Application";
+// import { v4 as uuidv4 } from "uuid";
 import fs from "node:fs";
 import path from "node:path";
 import {uploadFile}  from "../../../../helpers/uploadFile";
@@ -97,8 +97,8 @@ export default class WriterController {
       writer.update({ avatar: url });
       return { msg: "Avatar Update", avatar: writer.avatar };
     } catch (err) {
-      console.log("writer update avatar profile", err);
-      return response.badRequest(err);
+      console.log("Error al cargar el archivo ah ocurrido un error", err);
+      return response.internalServerError(err);
     }
   }
   public async show({ auth }) {

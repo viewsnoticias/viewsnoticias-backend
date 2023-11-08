@@ -40,6 +40,7 @@ Route.group(()=>{
     Route.get('/web/news/mostvisited','WebnewsController.mostVisited')
     Route.get('/web/news/:slug','WebnewsController.show')
     Route.get('/web/sections','SectionsController.index')
+    Route.get('/web/news/writer/:writer','WebnewsController.moreFromAuthor')
     Route.get('/web/sections/:id','SectionsController.show')
     Route.get('/web/titulares','WebnewsController.getTitulares')
     Route.post('/web/comment',()=>{

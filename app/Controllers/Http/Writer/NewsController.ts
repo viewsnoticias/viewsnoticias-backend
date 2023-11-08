@@ -1,8 +1,7 @@
-import Application from "@ioc:Adonis/Core/Application";
 import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import News from "App/Models/News";
 import NewsValidator from "App/Validators/NewsValidator";
-import {uploadFile}  from "../../../../helpers/uploadFile";
+import {uploadFile,destroitFile}  from "../../../../helpers/uploadFile";
 
 
 
@@ -10,58 +9,60 @@ export default class NewsController {
   public async index({ request, response, auth }: HttpContextContract) {
     let { orderBy, order, query, page, limit } = request.qs();
     query = JSON.parse(query || "{}");
+    if(!auth.user) return response.notFound({msg:'Un Athorize'})
     const queryNews = auth.user.related("news").query();
-
     if (query.section_id !== undefined) {
       queryNews.whereHas("sections", (subQuery) => {
         subQuery.where("section_id", query.section_id);
       });
       delete query["section_id"];
     }
-
     queryNews.where(query);
     queryNews.where({ disabled: 0 });
     queryNews.preload("writer");
     queryNews.preload("sections");
-
     if (orderBy) {
       queryNews.orderBy(order === "desc" ? "-" + orderBy : orderBy);
     }
-
     const results = await queryNews.paginate(page || 1, limit || 10);
-    return results;
+    return response.ok(results);
   }
 
-  public async update({ request, response, auth, params }) {
+  public async update({ request, response, auth, params }:HttpContextContract) {
     const body = request.body();
-    const data = body;
     const header = request.file("header");
+    
+    if(!auth.user) return response.notFound('Usuario no Autenticado')
     try {
       const news = await News.query()
-        .where({ id: params.id, user_id: auth.user.id })
-        .first();
-      if (!news) {
-        return response.notFound({ msg: "noticia no encontrada" });
-      }
-      if (!body.sections)
-        return response.notFound({ msg: "Las secciones son requeridas" });
-      if (header) {
-        data.header = header.fileName;
-      }
+                  .where({ id: params.id, user_id: auth.user.id })
+                  .first();
 
+      if ( !news ) return response.notFound({ msg: "Noticia no encontrada" });
+      
       if (header) {
-        await header.move(Application.publicPath());
+        destroitFile(news.header)
+        const urlFile = await uploadFile(header.tmpPath) 
+        body.header = urlFile
+        //await header.move(Application.publicPath());
+      } else {
+        body.header = news.header
       }
-
+      //todo adicionrar o quitar noticias
+      if (!body.sections) return response.notFound({ msg: "Las secciones son requeridas" });
       news.related("sections").sync(body.sections);
-      await news.update(data);
+
+      await news.update(body);
       return { msg: "news updated", newsId: news.id };
+
     } catch (err) {
       console.log(err);
-      return response.badRequest(err);
+      return response.internalServerError(err);
     }
   }
-  public async destroy({ params, response, auth }) {
+
+  public async destroy({ params, response}:HttpContextContract) {
+  
     const { id } = params;
     if (!id) return response.notFound({ msg: "news not found" });
     const news = await News.query().where({ id: params.id }).first();
@@ -73,7 +74,8 @@ export default class NewsController {
     return { msg: "Noticia eliminada" };
   }
 
-  public async show({ params, request, response, auth }) {
+  public async show({ params, response, auth }:HttpContextContract) {
+    if(!auth.user)return response.unauthorized({msg:'Unauthorize'})
     const news = await News.query()
       .where({ id: params.id, user_id: auth.user.id })
       .first();
@@ -89,8 +91,9 @@ export default class NewsController {
       data: news,
     };
   }
-  public async store({ request, response, auth }: HttpContextContract) {
-    
+
+    public async store({ request, response, auth }: HttpContextContract) {
+      if(!auth.user)return response.unauthorized({msg:'Unauthorize'})
     try {
       const data = await request.validate(NewsValidator);
       if(!data.header){
