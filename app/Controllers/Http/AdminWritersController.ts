@@ -10,7 +10,7 @@ export default class AdminWritersController {
     query = JSON.parse(query || "{}")
     try{
 
-      const queryWriter = User.queryWriters()  
+      const queryWriter = User.queryWriters()
       queryWriter.where(query)
       if (orderBy) {
         queryWriter.orderBy( order === 'desc' ? '-' + orderBy : orderBy)
@@ -25,12 +25,12 @@ export default class AdminWritersController {
     }
   }
 
-  public async update({ params, request, response }){
+  public async update({ params, request, response }:HttpContextContract){
 
     try {
       const body = request.body()
       const user = await User.queryWriters().where({ id: params.id }).first()
-      
+
       if(!user) {
         return response.notFound({msg:"user not found"})
       }
@@ -46,7 +46,7 @@ export default class AdminWritersController {
       return response.badRequest(err)
     }
   }
-  
+
   public async show({ params, response }){
     const writer = await User.queryWriters().where({ id:params.id }).first()
     if(!writer) {
@@ -66,14 +66,14 @@ export default class AdminWritersController {
     await writer.save()
     return { msg: 'writer deleted' }
   }
-  
+
   public async store({ request, response }: HttpContextContract){
     try{
       const varifiedData = await request.validate(WriterValidator)
       const {email,...data} = varifiedData
-      
+
       const createdwriter = new User()
-      createdwriter.fill({ 
+      createdwriter.fill({
         ...data,
         email: varifiedData.email.toLowerCase(),
         writer:1

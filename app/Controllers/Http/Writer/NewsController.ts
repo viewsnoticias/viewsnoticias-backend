@@ -1,68 +1,79 @@
 import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import News from "App/Models/News";
 import NewsValidator from "App/Validators/NewsValidator";
-import {uploadFile,destroitFile}  from "../../../../helpers/uploadFile";
-
-
+import { uploadFile, destroitFile } from "../../../../helpers/uploadFile";
 
 export default class NewsController {
   public async index({ request, response, auth }: HttpContextContract) {
-    let { orderBy, order, query, page, limit } = request.qs();
-    query = JSON.parse(query || "{}");
-    if(!auth.user) return response.notFound({msg:'Un Athorize'})
-    const queryNews = auth.user.related("news").query();
-    if (query.section_id !== undefined) {
-      queryNews.whereHas("sections", (subQuery) => {
-        subQuery.where("section_id", query.section_id);
-      });
-      delete query["section_id"];
+    try {
+      if (!auth.user) return response.unauthorized({ msg: "Un Athorize" });
+
+      let { orderBy, order, query, page, limit } = request.qs();
+      query = JSON.parse(query ?? "{}");
+
+      const queryNews = auth.user.related("news").query();
+
+      if (query.section_id !== undefined) {
+        queryNews.whereHas("sections", (subQuery) => {
+          subQuery.where("section_id", query.section_id);
+        });
+
+        delete query["section_id"];
+
+      }
+      const {title, ...res} = query
+      queryNews.whereLike('title',`%${title || ''}%`)
+      queryNews.where(res);
+      queryNews.where({ disabled: 0 });
+      queryNews.preload("writer");
+      queryNews.preload("sections");
+
+      if (orderBy) {
+        queryNews.orderBy(order === "desc" ? "-" + orderBy : orderBy);
+      }
+      const results = await queryNews.paginate(page || 1, limit || 10);
+
+      return response.ok(results);
+    } catch (error) {
+      console.log(error)
+      return response.internalServerError(error)
     }
-    queryNews.where(query);
-    queryNews.where({ disabled: 0 });
-    queryNews.preload("writer");
-    queryNews.preload("sections");
-    if (orderBy) {
-      queryNews.orderBy(order === "desc" ? "-" + orderBy : orderBy);
-    }
-    const results = await queryNews.paginate(page || 1, limit || 10);
-    return response.ok(results);
   }
 
-  public async update({ request, response, auth, params }:HttpContextContract) {
+  public async update({request,response,auth,params}: HttpContextContract) {
     const body = request.body();
     const header = request.file("header");
-    
-    if(!auth.user) return response.notFound('Usuario no Autenticado')
+
+    if (!auth.user) return response.notFound("Usuario no Autenticado");
     try {
       const news = await News.query()
-                  .where({ id: params.id, user_id: auth.user.id })
-                  .first();
+        .where({ id: params.id, user_id: auth.user.id })
+        .first();
 
-      if ( !news ) return response.notFound({ msg: "Noticia no encontrada" });
-      
+      if (!news) return response.notFound({ msg: "Noticia no encontrada" });
+
       if (header) {
-        destroitFile(news.header)
-        const urlFile = await uploadFile(header.tmpPath) 
-        body.header = urlFile
+        destroitFile(news.header);
+        const urlFile = await uploadFile(header.tmpPath);
+        body.header = urlFile;
         //await header.move(Application.publicPath());
       } else {
-        body.header = news.header
+        body.header = news.header;
       }
-      //todo adicionrar o quitar noticias
-      if (!body.sections) return response.notFound({ msg: "Las secciones son requeridas" });
+
+      if (!body.sections)
+        return response.notFound({ msg: "Las secciones son requeridas" });
       news.related("sections").sync(body.sections);
 
       await news.update(body);
       return { msg: "news updated", newsId: news.id };
-
     } catch (err) {
       console.log(err);
       return response.internalServerError(err);
     }
   }
 
-  public async destroy({ params, response}:HttpContextContract) {
-  
+  public async destroy({ params, response }: HttpContextContract) {
     const { id } = params;
     if (!id) return response.notFound({ msg: "news not found" });
     const news = await News.query().where({ id: params.id }).first();
@@ -74,8 +85,8 @@ export default class NewsController {
     return { msg: "Noticia eliminada" };
   }
 
-  public async show({ params, response, auth }:HttpContextContract) {
-    if(!auth.user)return response.unauthorized({msg:'Unauthorize'})
+  public async show({ params, response, auth }: HttpContextContract) {
+    if (!auth.user) return response.unauthorized({ msg: "Unauthorize" });
     const news = await News.query()
       .where({ id: params.id, user_id: auth.user.id })
       .first();
@@ -92,14 +103,14 @@ export default class NewsController {
     };
   }
 
-    public async store({ request, response, auth }: HttpContextContract) {
-      if(!auth.user)return response.unauthorized({msg:'Unauthorize'})
+  public async store({ request, response, auth }: HttpContextContract) {
+    if (!auth.user) return response.unauthorized({ msg: "Unauthorize" });
     try {
       const data = await request.validate(NewsValidator);
-      if(!data.header){
-        return response.badRequest({msg:'Es requerida una imagen'})
+      if (!data.header) {
+        return response.badRequest({ msg: "Es requerida una imagen" });
       }
-      const urlFile = await uploadFile(data.header.tmpPath)      
+      const urlFile = await uploadFile(data.header.tmpPath);
       //almacenamiento local solo desarrollo pruebas
       // await data.header.move(Application.publicPath());
       // console.log("data",data.header)
