@@ -1,11 +1,13 @@
-// import Application from "@ioc:Adonis/Core/Application";
-// import { v4 as uuidv4 } from "uuid";
+
 import fs from "node:fs";
 import path from "node:path";
-import {uploadFile}  from "../../../../helpers/uploadFile";
+import { uploadFile } from "../../../../helpers/uploadFile";
 
-import {v2 as cloudinary} from 'cloudinary';
-cloudinary.config(process.env.CLOUDINARY_URL ?? 'cloudinary://987242662715966:yUlMtQmb9UxCgywKBTC5KX-oRPs@dptbdos97');
+import { v2 as cloudinary } from "cloudinary";
+cloudinary.config(
+  process.env.CLOUDINARY_URL ??
+    "cloudinary://987242662715966:yUlMtQmb9UxCgywKBTC5KX-oRPs@dptbdos97"
+);
 
 export default class WriterController {
   public async passwordUpdate({ auth, request, response }) {
@@ -54,12 +56,11 @@ export default class WriterController {
   }
 
   public async loadAvatarProfile({ auth, request, response }) {
-    
     const writer = auth.user;
     if (writer.avatar) {
-      const ruta = path.join("./public",'',writer.avatar);
+      const ruta = path.join("./public", "", writer.avatar);
       fs.unlink(ruta, (err) => {
-        if(err){
+        if (err) {
           console.log(err);
         }
       });
@@ -67,12 +68,11 @@ export default class WriterController {
 
     try {
       if (!writer) return response.badRequest({ msg: "unauthorize" });
-    
+
       const coverImage = request.file("avatar", {
         extnames: ["jpg", "png"],
       });
 
-     
       if (!coverImage) {
         return response.badRequest({ smg: "Debes cargar una imagen" });
       }
@@ -81,18 +81,18 @@ export default class WriterController {
         return response.badRequest({ smg: coverImage.errors });
       }
 
-      if(writer.avatar){
-        const nameArr = writer.avatar.split('/')
-        const nameFile = nameArr[nameArr.lenth-1]
-        const [public_id] = nameFile.split('.')
-        cloudinary.uploader.destroy(public_id)
+      if (writer.avatar) {
+        const nameArr = writer.avatar.split("/");
+        const nameFile = nameArr[nameArr.lenth - 1];
+        const [public_id] = nameFile.split(".");
+        cloudinary.uploader.destroy(public_id);
       }
-      const url =  await uploadFile(coverImage.tmpPath)
+      const url = await uploadFile(coverImage.tmpPath);
 
-        // const {secure_url} = await cloudinary.uploader.upload(coverImage.tmpPath)
-        // const name = "avatar_" + uuidv4();
-        // coverImage.clientName = name.concat(".", coverImage.extname);
-        // await coverImage.move(Application.publicPath());
+      // const {secure_url} = await cloudinary.uploader.upload(coverImage.tmpPath)
+      // const name = "avatar_" + uuidv4();
+      // coverImage.clientName = name.concat(".", coverImage.extname);
+      // await coverImage.move(Application.publicPath());
 
       writer.update({ avatar: url });
       return { msg: "Avatar Update", avatar: writer.avatar };

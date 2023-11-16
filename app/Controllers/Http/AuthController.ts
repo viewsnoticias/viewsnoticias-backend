@@ -3,12 +3,12 @@ import Database from "@ioc:Adonis/Lucid/Database"
 import User from "App/Models/User"
 
 export default class AuthController {
-  
+
   public async login({ request, response, auth }:HttpContextContract){
-    
+
     const {email,password} = request.body()
     const status = ['verificado','pendiente','negado']
-    if (!email || password){
+    if (!email || !password){
       return response.badRequest({msg:"Todos los campos son requeridos"})
     }
     const user = await User.findByOrFail('email',email)
@@ -29,7 +29,7 @@ export default class AuthController {
             .delete()
 
       const token = await auth.use('api').generate(user)
-      
+
       return {
         data: { token: token.token },
         msg:"logged succefully"
@@ -46,9 +46,9 @@ export default class AuthController {
       return response.notFound({msg:'Todos Los Campos Son Requeridos'});
     }
     try{
-      const user = await User.find('email',email)
+      const user = await User.findBy('email',email)
       if(!user){
-        return response.notFound({msg:'Verifique el email'})
+        return response.notFound({msg:'Email no registrado'})
       }
       if(user.status !== 0) {
         return response.badRequest({msg: `Estado dela cuenta: ${status[user.status]}`})
