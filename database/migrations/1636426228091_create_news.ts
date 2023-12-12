@@ -24,9 +24,10 @@ export default class CreateNoticias extends BaseSchema {
       table.timestamp('deleted_at',{ useTz: true })
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
+     
     })
   }
-
+  
   public async down () {
     this.schema.dropTable(this.tableName)
   }

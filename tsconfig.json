@@ -33,7 +33,8 @@
       "@adonisjs/view",
       "@adonisjs/route-model-binding/build/adonis-typings",
       "adonis5-scheduler",
-      "@adonisjs/lucid-slugify"
+      "@adonisjs/lucid-slugify",
+      "@adonisjs/mail"
     ]
   }
 }

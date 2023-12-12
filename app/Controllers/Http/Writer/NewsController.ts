@@ -21,8 +21,11 @@ export default class NewsController {
         delete query["section_id"];
 
       }
-      const {title, ...res} = query
+
+      const {title,created_at, ...res} = query
+
       queryNews.whereLike('title',`%${title || ''}%`)
+      queryNews.whereLike('created_at',`%${created_at || ''}%`)
       queryNews.where(res);
       queryNews.where({ disabled: 0 });
       queryNews.preload("writer");
@@ -34,6 +37,7 @@ export default class NewsController {
       const results = await queryNews.paginate(page || 1, limit || 10);
 
       return response.ok(results);
+
     } catch (error) {
       console.log(error)
       return response.internalServerError(error)

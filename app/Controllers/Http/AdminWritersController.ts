@@ -8,15 +8,18 @@ export default class AdminWritersController {
   public async index({ response, request }){
     let { orderBy, order, query, page, limit } = request.qs()
     query = JSON.parse(query || "{}")
-    try{
 
+    try{
       const queryWriter = User.queryWriters()
-      queryWriter.where(query)
+
       if (orderBy) {
         queryWriter.orderBy( order === 'desc' ? '-' + orderBy : orderBy)
       }
+      queryWriter.where(query)
       queryWriter.where({disabled:0})
+
       const results = await queryWriter.paginate(page|| 1, limit || 10)
+
       return response.ok(results)
 
     } catch(err){

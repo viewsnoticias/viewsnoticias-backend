@@ -6,7 +6,7 @@ const hideForWriter = (hide)=> async (ctx,next)=>{
     return ctx.response.notFound('route not found')
   }
   await next()
-} 
+}
 Route.get('/', async () => {
   return { data:"tkm ❤❤❤" }
 })
@@ -24,15 +24,10 @@ Route.group(()=>{
 
   Route.post('/auth/login','AuthController.login')
   Route.post('/auth/witers','AuthController.authWriter')
+  Route.post('/auth/forgot','AuthController.forgot')
   Route.post('/auth/check','AuthController.check')
   Route.get('/files','FilesController.show')
 
-  Route.post('/sub',({request,response})=>{
-    const {email,password} = request.body()
-    if(email === null || undefined) {return {msg: 'El email es requerido'}}
-    return {msg: email}
-  })
-  
   //rutas para web
   Route.group(() => {
     Route.get('/web/news','WebnewsController.index')
@@ -43,10 +38,8 @@ Route.group(()=>{
     Route.get('/web/news/writer/:writer','WebnewsController.moreFromAuthor')
     Route.get('/web/sections/:id','SectionsController.show')
     Route.get('/web/titulares','WebnewsController.getTitulares')
-    Route.post('/web/comment',()=>{
-      console.log('comentario reañizado')
-    })
   })
+
   //rutas para el admin
   Route.group(()=>{
     Route.get('/news','AdminNewsController.index')
@@ -62,7 +55,7 @@ Route.group(()=>{
   .middleware(hideForWriter(true))
   .middleware('Permi')
   //permissions
-  Route.get('/user/profile','AuthController.profile') 
+  Route.get('/user/profile','AuthController.profile')
   .middleware('Auth')
   .middleware(hideForWriter(true))
 }).prefix('api')
